@@ -30,8 +30,6 @@ namespace BlazorProducts.Client.Pages
 
         const int nuberOfDaysToShow = 31;
 
-
-
         protected async override Task OnInitializedAsync()
         {
             Interceptor.RegisterEvent();
@@ -52,9 +50,7 @@ namespace BlazorProducts.Client.Pages
             tenantsDaysForUI = await TenantDayRepository.GetTenantDays(LoggedUserName);
 
             tenantsForDay = await GetCalendarMap();
-        }
-
-        
+        }        
 
         private async Task BookOrFreeDay(string day)
         {
@@ -93,7 +89,7 @@ namespace BlazorProducts.Client.Pages
                     calendarButtontype = "btn-outline-info";
                 }
                 else
-                    calendarButtontype = "btn-outline-warning";
+                    calendarButtontype = "btn-outline-danger";
             }
             else
             {
@@ -133,7 +129,7 @@ namespace BlazorProducts.Client.Pages
                 }
             }
             completeTenantsForDay.Add(tenantsForDay1);
-            //tenantsForDay.Clear();
+            
             // 2. line
             for (int i = 7; i < 14; i++)
             {                
@@ -148,7 +144,7 @@ namespace BlazorProducts.Client.Pages
                 });                
             }
             completeTenantsForDay.Add(tenantsForDay2);
-            //tenantsForDay.Clear();
+            
             // 3. line
             for (int i = 14; i < 21; i++)
             {
@@ -163,7 +159,7 @@ namespace BlazorProducts.Client.Pages
                 });
             }
             completeTenantsForDay.Add(tenantsForDay3);
-            //tenantsForDay.Clear();
+            
             // 4. day
             for (int i = 21; i < 28; i++)
             {
@@ -181,7 +177,7 @@ namespace BlazorProducts.Client.Pages
                 }
             }
             completeTenantsForDay.Add(tenantsForDay4);
-            //tenantsForDay.Clear();
+            
             // 5. line
             for (int i = 28; i < 35; i++)
             {
@@ -199,7 +195,7 @@ namespace BlazorProducts.Client.Pages
                 }
             }
             completeTenantsForDay.Add(tenantsForDay5);
-            //tenantsForDay.Clear();
+            
             // 6. line
             for (int i = 35; i < 42 - dayOfWeekLocalNumber + 1; i++)
             {
@@ -217,8 +213,6 @@ namespace BlazorProducts.Client.Pages
                 }
             }
             completeTenantsForDay.Add(tenantsForDay6);
-            //tenantsForDay.Clear();
-
 
             return completeTenantsForDay;
         }
