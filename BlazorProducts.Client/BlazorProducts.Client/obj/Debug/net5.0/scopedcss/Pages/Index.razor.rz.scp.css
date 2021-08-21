@@ -1,0 +1,16 @@
+.center[b-5vsh8vvzr0] {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/*https://stackoverflow.com/questions/7455362/how-to-center-a-table-of-the-screen-vertically-and-horizontally/7455747*/
+.box[b-5vsh8vvzr0] {
+    width: 300px;
+    height: 300px;
+    /* background-color: #d9d9d9;*/
+    position: fixed;
+    margin-left: -150px; /* half of width */
+    margin-top: -150px; /* half of height */
+    top: 50%;
+    left: 50%;
+}
