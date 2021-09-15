@@ -1,9 +1,6 @@
 ﻿using BlazorProducts.Client.Features;
 using Microsoft.AspNetCore.Components.Authorization;
 using Blazored.LocalStorage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;

@@ -12,5 +12,7 @@ namespace BlazorProducts.Client.HttpRepository
         Task<List<string>> GetDaysForTenant(string dayId);
         Task BookDay(TenantDay tenant);
         Task FreeDay(TenantDay tenant);
+        Task BookAllDaysFortenant(TenantSingle tenantSingle);
+        Task RemoveAllBookedDaysFromUser(TenantSingle tenantSingle);
     }
 }

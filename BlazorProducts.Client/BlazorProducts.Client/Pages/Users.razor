@@ -1,0 +1,9 @@
+﻿@page "/users"
+@using BlazorProducts.Client.Components
+
+
+<div class="row">
+    <div class="col">
+        <UsersTable Users="UsersList" LoggedUser="@LoggedUserName" OnDeleteUser="DeleteUser" OnBookAllDaysForTenant="BookAllDaysForTenant"/>
+    </div>
+</div>

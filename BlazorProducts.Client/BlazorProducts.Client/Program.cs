@@ -46,6 +46,8 @@ namespace BlazorProducts.Client
 			builder.Services.Configure<ApiConfiguration>
 					(builder.Configuration.GetSection("ApiConfiguration"));
 
+			builder.Services.Configure<PriviledgedUsersConfiguration>(builder.Configuration.GetSection("PriviledgedUsers"));
+
 			builder.Services.AddBlazoredToast();
 			builder.Services.AddBlazoredLocalStorage();
 

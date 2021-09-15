@@ -3,7 +3,13 @@
 <AuthorizeView>
     <Authorized>
         @if (tenantsForDay.Any())
-        {
+        {   <div>Your booked days in this calendar are: </div>
+            @foreach (var tenantsDays in tenantsDayActualSelection)
+            {
+            <div>
+                @tenantsDays
+            </div>
+            }
         <table class="box">
             <thead>
                 <tr>

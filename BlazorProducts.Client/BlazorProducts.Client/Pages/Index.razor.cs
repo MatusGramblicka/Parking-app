@@ -7,6 +7,7 @@ using Entities.Models;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BlazorProducts.Client.Pages
@@ -27,6 +28,7 @@ namespace BlazorProducts.Client.Pages
         public List<string> tenantsDaysForUI { get; set; } = new List<string>();
         public List<string> tenantsInDay { get; set; } = new List<string>();
         public List<List<TenantsForDay>> tenantsForDay { get; set; } = new List<List<TenantsForDay>>();
+        public List<string> tenantsDayActualSelection { get; set; } = new List<string>();
 
         const int nuberOfDaysToShow = 31;
 
@@ -50,18 +52,33 @@ namespace BlazorProducts.Client.Pages
             tenantsDaysForUI = await TenantDayRepository.GetTenantDays(LoggedUserName);
 
             tenantsForDay = await GetCalendarMap();
+
+            tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId).ToList();
         }        
 
         private async Task BookOrFreeDay(string day)
         {
-            var tenantsDays = await TenantDayRepository.GetTenantDays(LoggedUserName);
+            var tenantsDays = await TenantDayRepository.GetTenantDays(LoggedUserName);           
             
             if (tenantsDays.Contains(day))
+            { 
                 await TenantDayRepository.FreeDay(new TenantDay { DayId = day.ToString(), TenantId = LoggedUserName });
+                tenantsForDay.SelectMany(s => s).Where(w => w.DayId == day).Single().TenantId.Remove(LoggedUserName);
+            }
             else
-                await TenantDayRepository.BookDay(new TenantDay { DayId = day.ToString(), TenantId = LoggedUserName });
+            {
+                var tenantsForConcreteDay = await TenantDayRepository.GetDaysForTenant(day);
+                if (tenantsForConcreteDay.Count < 2)
+                { 
+                    await TenantDayRepository.BookDay(new TenantDay { DayId = day.ToString(), TenantId = LoggedUserName });
+                    tenantsForDay.SelectMany(s => s).Where(w => w.DayId == day).Single().TenantId.Add(LoggedUserName);
+                }
+                else
+                    tenantsForDay = await GetCalendarMap(); // if simultaneous 2 user booked the same day, one of them cant booked and then UI must be reload with updated days
+            }
 
             tenantsDaysForUI = await TenantDayRepository.GetTenantDays(LoggedUserName);
+            tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId).ToList();
 
             StateHasChanged();
         }

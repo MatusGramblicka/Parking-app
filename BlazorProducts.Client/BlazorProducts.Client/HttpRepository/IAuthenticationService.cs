@@ -1,7 +1,6 @@
 ﻿using Entities.DTO;
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace BlazorProducts.Client.HttpRepository
@@ -12,5 +11,9 @@ namespace BlazorProducts.Client.HttpRepository
 		Task<AuthResponseDto> Login(UserForAuthenticationDto userForAuthentication);
 		Task Logout();
 		Task<string> RefreshToken();
+
+		Task<List<UserLite>> GetUsers();	
+		Task<HttpStatusCode> DeleteUser(UserLite user);
+		Task<HttpStatusCode> UpdatePriviledgeOfUser(UserLite user);		
 	}
 }

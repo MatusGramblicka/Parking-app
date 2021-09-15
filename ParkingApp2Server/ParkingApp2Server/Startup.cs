@@ -1,11 +1,9 @@
-using AutoMapper;
 using Entities;
 using Entities.Configuration;
 //using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -15,11 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ParkingApp2Server.Extensions;
 using ParkingApp2Server.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ParkingApp2Server
 {
@@ -30,10 +25,8 @@ namespace ParkingApp2Server
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-        }        
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        }  
+     
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureCors();
@@ -68,6 +61,8 @@ namespace ParkingApp2Server
             services.Configure<JwtConfiguration>(Configuration.GetSection("JWTSettings"));
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 
+            services.Configure<PriviledgedUsersConfiguration>(Configuration.GetSection("PriviledgedUsers"));            
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -92,15 +87,8 @@ namespace ParkingApp2Server
 
             app.UseHttpsRedirection();
             app.UseCors("CorsPolicy");
-
-            //app.UseBlazorFrameworkFiles();
-            app.UseStaticFiles();
-            //app.UseStaticFiles(new StaticFileOptions
-            //{
-            //    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(),
-            //    @"StaticFiles")),
-            //    RequestPath = new PathString("/StaticFiles")
-            //});
+           
+            app.UseStaticFiles();           
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
