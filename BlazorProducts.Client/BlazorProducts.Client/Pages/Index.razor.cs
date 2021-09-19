@@ -98,24 +98,24 @@ namespace BlazorProducts.Client.Pages
 
         private string GetTypeOfCalendarDay(int count, List<string> tenantsDays, string dayStringRepr)
         {
-            var calendarButtontype = "btn-info";
+            var calendarButtontype = "btn-success";
             if (count >= 2)
             {
                 if (tenantsDays.Contains(dayStringRepr))
                 {
-                    calendarButtontype = "btn-outline-info";
+                    calendarButtontype = "btn-warning";
                 }
                 else
-                    calendarButtontype = "btn-outline-danger";
+                    calendarButtontype = "btn-danger";
             }
             else
             {
                 if (tenantsDays.Contains(dayStringRepr))
                 {
-                    calendarButtontype = "btn-outline-info";
+                    calendarButtontype = "btn-warning";
                 }
                 else
-                    calendarButtontype = "btn-info";
+                    calendarButtontype = "btn-success";
             }
             return calendarButtontype;
         }

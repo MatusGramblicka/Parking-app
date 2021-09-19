@@ -31,7 +31,7 @@ namespace BlazorProducts.Client.Pages
 			}
 			else
 			{
-				NavigationManager.NavigateTo("/index");
+				NavigationManager.NavigateTo("/");
 			}
 		}
 	}

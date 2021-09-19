@@ -15,7 +15,7 @@ namespace BlazorProducts.Client.Pages
 		protected override async Task OnInitializedAsync()
 		{
 			await AuthenticationService.Logout();
-			NavigationManager.NavigateTo("/Login");
+			NavigationManager.NavigateTo("/login");
 		}
 	}
 }
