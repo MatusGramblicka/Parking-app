@@ -23,7 +23,7 @@ namespace BlazorProducts.Client.Pages
 		public PriviledgedUsersConfiguration priviledgedUsersConfiguration { get; set; }
 
 		[Inject]
-		public IAuthenticationService AuthService { get; set; }
+		public IUsersHttpRepository UsersHttpRepository { get; set; }
 		[Inject]
 		public HttpInterceptorService Interceptor { get; set; }
 		[Inject]
@@ -56,7 +56,7 @@ namespace BlazorProducts.Client.Pages
 
 		private async Task GetUsers()
 		{
-			UsersList = await AuthService.GetUsers();
+			UsersList = await UsersHttpRepository.GetUsers();
 
 			Logger.LogInformation(JsonConvert.SerializeObject(UsersList));
 		}	
@@ -66,7 +66,7 @@ namespace BlazorProducts.Client.Pages
 			if (user.Priviledged)
 			{
 				// How many users are priviledged ones?				
-				var users = await AuthService.GetUsers();
+				var users = await UsersHttpRepository.GetUsers();
 				var priviledgedUsersCount = users.Where(w => w.Priviledged == true)
 					.ToList()
 					.Count;
@@ -83,7 +83,7 @@ namespace BlazorProducts.Client.Pages
 				{
 					TenantId = user.Email
 				});
-				await AuthService.UpdatePriviledgeOfUser(user);
+				await UsersHttpRepository.UpdatePriviledgeOfUser(user);
 			}
 			else
 			{
@@ -91,7 +91,7 @@ namespace BlazorProducts.Client.Pages
 				{
 					TenantId = user.Email
 				});
-				await AuthService.UpdatePriviledgeOfUser(user);
+				await UsersHttpRepository.UpdatePriviledgeOfUser(user);
 			}
 
 			await GetUsers();
@@ -100,7 +100,7 @@ namespace BlazorProducts.Client.Pages
 
 		private async Task DeleteUser(UserLite user)
 		{
-			await AuthService.DeleteUser(user);
+			await UsersHttpRepository.DeleteUser(user);
 			await GetUsers();
 		}		
 

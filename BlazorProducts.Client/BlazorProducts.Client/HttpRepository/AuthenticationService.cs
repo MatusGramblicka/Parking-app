@@ -2,10 +2,6 @@
 using BlazorProducts.Client.AuthProviders;
 using Entities.DTO;
 using Microsoft.AspNetCore.Components.Authorization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -14,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BlazorProducts.Client.HttpRepository
 {
-	public class AuthenticationService : IAuthenticationService
+    public class AuthenticationService : IAuthenticationService
 	{
 		private readonly HttpClient _client;
 		private readonly JsonSerializerOptions _options =
@@ -103,32 +99,6 @@ namespace BlazorProducts.Client.HttpRepository
 			}
 
 			return new ResponseDto { IsSuccessfulRegistration = true };
-		}
-
-
-        public async Task<List<UserLite>> GetUsers()
-        {
-            var usersResult = await _client.GetFromJsonAsync<List<UserLite>>("account/users");
-
-            return usersResult;
-        }
-
-        public async Task<HttpStatusCode> DeleteUser(UserLite user)
-        {
-            var result = await _client.PostAsJsonAsync("account/deleteuser",
-                user);
-
-            return result.StatusCode;
-        }
-
-        public async Task<HttpStatusCode> UpdatePriviledgeOfUser(UserLite user)
-        {
-            var result = await _client.PostAsJsonAsync("account/UpdatePriviledgeOfUser",
-                user);
-
-            return result.StatusCode;
-        }
-
-        
+		}        
     }
 }

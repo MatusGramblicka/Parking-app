@@ -26,13 +26,16 @@ namespace BlazorProducts.Client.HttpInterceptor
 		}
 
 		public void RegisterEvent() => _interceptor.AfterSend += HandleResponse;
-		public void RegisterBeforeSendEvent() =>
+		public void RegisterBeforeSendEvent()
+		{
+			_interceptor.BeforeSendAsync -= InterceptBeforeSendAsync;
 			_interceptor.BeforeSendAsync += InterceptBeforeSendAsync;
+		}
 
 		public void DisposeEvent()
 		{
 			_interceptor.AfterSend -= HandleResponse;
-			_interceptor.BeforeSendAsync -= InterceptBeforeSendAsync;
+			//_interceptor.BeforeSendAsync -= InterceptBeforeSendAsync;
 		}
 
 		private async Task InterceptBeforeSendAsync(object sender,

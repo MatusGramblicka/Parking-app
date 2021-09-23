@@ -55,6 +55,8 @@ namespace BlazorProducts.Client
 			builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 
 			builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+			builder.Services.AddScoped<IUsersHttpRepository, UsersHttpRepository>();
+
 			builder.Services.AddScoped<RefreshTokenService>();
 
 			await builder.Build().RunAsync();
