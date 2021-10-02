@@ -1,0 +1,15 @@
+﻿@page "/socket"
+@using System.Net.WebSockets
+
+<h1>Echo test</h1>
+<h3>State: @webSocket.State</h3>
+
+@if (webSocket.State == WebSocketState.Open)
+{
+    <form @onsubmit="@SendMessageAsync">
+        Message: <input @bind="@message" />
+        <button type="submit">Send</button>
+    </form>
+
+    <pre>@log</pre>
+}

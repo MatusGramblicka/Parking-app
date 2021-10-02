@@ -3,11 +3,15 @@ using BlazorProducts.Client.Features;
 using BlazorProducts.Client.HttpInterceptor;
 using BlazorProducts.Client.HttpRepository;
 using Entities.DataTransferObjects;
+using Entities.Enums;
 using Entities.Models;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BlazorProducts.Client.Pages
@@ -32,10 +36,19 @@ namespace BlazorProducts.Client.Pages
 
         const int nuberOfDaysToShow = 31;
 
+        //https://gist.github.com/SteveSandersonMS/5aaff6b010b0785075b0a08cc1e40e01
+        public CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
+        public ClientWebSocket webSocket = new ClientWebSocket();
+        public string message = "Hello, websocket!";
+        public string log = "";
+
         protected async override Task OnInitializedAsync()
         {
             Interceptor.RegisterEvent();
-            Interceptor.RegisterBeforeSendEvent();            
+            Interceptor.RegisterBeforeSendEvent();
+
+            await webSocket.ConnectAsync(new Uri("wss://localhost:5011/socket"), disposalTokenSource.Token);
+            _ = ReceiveLoop();
 
             today = DateTime.Today;
 
@@ -234,6 +247,35 @@ namespace BlazorProducts.Client.Pages
             return completeTenantsForDay;
         }
 
-        public void Dispose() => Interceptor.DisposeEvent();
+        async Task ReceiveLoop()
+        {
+            var buffer = new ArraySegment<byte>(new byte[1024]);
+            while (!disposalTokenSource.IsCancellationRequested)
+            {
+                // Note that the received block might only be part of a larger message. If this applies in your scenario,
+                // check the received.EndOfMessage and consider buffering the blocks until that property is true.
+                // Or use a higher-level library such as SignalR.
+                var received = await webSocket.ReceiveAsync(buffer, disposalTokenSource.Token);
+                var receivedAsText = Encoding.UTF8.GetString(buffer.Array, 0, received.Count);
+
+                // todo check message           
+                if (receivedAsText == WebSocketMessage.ParkingPlaceChange.ToString())
+                { 
+                    tenantsDaysForUI = await TenantDayRepository.GetTenantDays(LoggedUserName);
+                    tenantsForDay = await GetCalendarMap();
+                    tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId).ToList();
+
+                    StateHasChanged();
+                }
+            }
+        }
+
+        public void Dispose()
+        { 
+            Interceptor.DisposeEvent();
+
+            disposalTokenSource.Cancel();
+            _ = webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", CancellationToken.None);
+        }        
     }
 }
