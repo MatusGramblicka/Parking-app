@@ -4,6 +4,7 @@ using Entities.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -12,8 +13,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ParkingApp2Server.Extensions;
+using ParkingApp2Server.Infrastructure;
+using ParkingApp2Server.Middlewares;
 using ParkingApp2Server.Services;
-
+using System.Collections.Generic;
 using System.Text;
 
 namespace ParkingApp2Server
@@ -68,6 +71,12 @@ namespace ParkingApp2Server
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ParkingApp", Version = "v1" });
             });
+
+
+
+            services.AddWebSocketConnections();
+
+            //services.AddSingleton<IHostedService, HeartbeatService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -87,7 +96,38 @@ namespace ParkingApp2Server
 
             app.UseHttpsRedirection();
             app.UseCors("CorsPolicy");
-           
+
+
+
+
+
+
+            ITextWebSocketSubprotocol textWebSocketSubprotocol = new PlainTextWebSocketSubprotocol();
+            WebSocketConnectionsOptions webSocketConnectionsOptions = new()
+            {
+                AllowedOrigins = new HashSet<string> { "https://localhost:5001" },
+                SupportedSubProtocols = new List<ITextWebSocketSubprotocol>
+                {
+                    new JsonWebSocketSubprotocol(),
+                    textWebSocketSubprotocol
+                },
+                DefaultSubProtocol = textWebSocketSubprotocol,
+                SendSegmentSize = 4 * 1024
+            };
+
+            app.UseWebSockets()
+                .MapWebSocketConnections("/socket", webSocketConnectionsOptions)
+                //.Run(async (context) =>
+                //{
+                //    await context.Response.WriteAsync("-- Demo.AspNetCore.WebSocket --");
+                //})
+                ;
+
+
+
+
+
+
             app.UseStaticFiles();           
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions

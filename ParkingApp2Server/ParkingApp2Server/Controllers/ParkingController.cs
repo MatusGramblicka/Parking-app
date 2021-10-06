@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +12,8 @@ using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Entities.Configuration;
 using Microsoft.Extensions.Options;
+using ParkingApp2Server.Services;
+using Entities.Enums;
 
 namespace ParkingApp2Server.Controllers
 {
@@ -26,14 +27,18 @@ namespace ParkingApp2Server.Controllers
         private readonly RepositoryContext _context;
         private readonly PriviledgedUsersConfiguration _priviledgedUsersSettings;
 
+        private readonly IWebSocketConnectionsService _webSocketConnectionsService;
+
         public ParkingController(IRepositoryManager repository, IMapper mapper, 
-            RepositoryContext context, IOptions<PriviledgedUsersConfiguration> priviledgedUsersSettings)
+            RepositoryContext context, IOptions<PriviledgedUsersConfiguration> priviledgedUsersSettings,
+            IWebSocketConnectionsService webSocketConnectionsService)
 
         {
             _repository = repository;
             _mapper = mapper;
             _context = context;
             _priviledgedUsersSettings = priviledgedUsersSettings.Value;
+            _webSocketConnectionsService = webSocketConnectionsService;
         }
 
         [HttpGet("/days")]
@@ -200,7 +205,9 @@ namespace ParkingApp2Server.Controllers
 
             day.Tenants.Add(tenant);
 
-            await _repository.SaveAsync();            
+            await _repository.SaveAsync();
+
+            await _webSocketConnectionsService.SendToAllAsync(WebSocketMessage.ParkingPlaceChange.ToString(), default);
 
             return NoContent();
         }
@@ -262,7 +269,9 @@ namespace ParkingApp2Server.Controllers
                 day.Tenants.Add(tenant);
             }
 
-            await _repository.SaveAsync();            
+            await _repository.SaveAsync();
+
+            await _webSocketConnectionsService.SendToAllAsync(WebSocketMessage.ParkingPlaceChange.ToString(), default);
 
             return NoContent();
         }
@@ -294,6 +303,8 @@ namespace ParkingApp2Server.Controllers
 
             await _context.SaveChangesAsync();
 
+            await _webSocketConnectionsService.SendToAllAsync(WebSocketMessage.ParkingPlaceChange.ToString(), default);
+
             return NoContent();
         }
 
@@ -320,7 +331,9 @@ namespace ParkingApp2Server.Controllers
             var tenantToRemove = day.Tenants.Single(x => x.TenantId == tenantDay.TenantId);
             day.Tenants.Remove(tenantToRemove);
 
-            await _context.SaveChangesAsync();           
+            await _context.SaveChangesAsync();
+
+            await _webSocketConnectionsService.SendToAllAsync(WebSocketMessage.ParkingPlaceChange.ToString(), default);
 
             return NoContent();
         }        
