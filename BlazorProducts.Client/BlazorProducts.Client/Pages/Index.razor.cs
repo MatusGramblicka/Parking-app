@@ -32,7 +32,7 @@ namespace BlazorProducts.Client.Pages
         public List<string> tenantsDaysForUI { get; set; } = new List<string>();
         public List<string> tenantsInDay { get; set; } = new List<string>();
         public List<List<TenantsForDay>> tenantsForDay { get; set; } = new List<List<TenantsForDay>>();
-        public List<string> tenantsDayActualSelection { get; set; } = new List<string>();
+        public IEnumerable<string> tenantsDayActualSelection { get; set; } = new List<string>();
 
         const int nuberOfDaysToShow = 31;
 
@@ -66,7 +66,7 @@ namespace BlazorProducts.Client.Pages
 
             tenantsForDay = await GetCalendarMap();
 
-            tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId).ToList();
+            tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId)/*.ToList()*/;
         }        
 
         private async Task BookOrFreeDay(string day)
@@ -91,7 +91,7 @@ namespace BlazorProducts.Client.Pages
             }
 
             tenantsDaysForUI = await TenantDayRepository.GetTenantDays(LoggedUserName);
-            tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId).ToList();
+            tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId)/*.ToList()*/;
 
             StateHasChanged();
         }
@@ -136,13 +136,32 @@ namespace BlazorProducts.Client.Pages
         private async Task<List<List<TenantsForDay>>> GetCalendarMap()
         {
             List<List<TenantsForDay>> completeTenantsForDay = new List<List<TenantsForDay>>();
-            List<TenantsForDay> tenantsForDay1 = new List<TenantsForDay>();
-            List<TenantsForDay> tenantsForDay2 = new List<TenantsForDay>();
-            List<TenantsForDay> tenantsForDay3 = new List<TenantsForDay>();
-            List<TenantsForDay> tenantsForDay4 = new List<TenantsForDay>();
-            List<TenantsForDay> tenantsForDay5 = new List<TenantsForDay>();
-            List<TenantsForDay> tenantsForDay6 = new List<TenantsForDay>();
+            //List<TenantsForDay> tenantsForDay1 = new List<TenantsForDay>();
+            //List<TenantsForDay> tenantsForDay2 = new List<TenantsForDay>();
+            //List<TenantsForDay> tenantsForDay3 = new List<TenantsForDay>();
+            //List<TenantsForDay> tenantsForDay4 = new List<TenantsForDay>();
+            //List<TenantsForDay> tenantsForDay5 = new List<TenantsForDay>();
+            //List<TenantsForDay> tenantsForDay6 = new List<TenantsForDay>();
             // 1. line
+            //for (int i = 0; i < 7; i++)
+            //{
+            //    if (i >= dayOfWeekLocalNumber)
+            //    {
+            //        today = DateTime.Today;
+            //        today = today.AddDays(i - dayOfWeekLocalNumber);
+            //        var nextDayStringReprCs = today.ToString("ddMM");
+            //        tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
+            //        tenantsForDay1.Add(new TenantsForDay
+            //        {
+            //            DayId = nextDayStringReprCs,
+            //            TenantId = tenantsInDay
+            //        });
+            //    }
+            //}
+            //completeTenantsForDay.Add(tenantsForDay1);
+
+            //---
+            List<string> days1 = new List<string>();
             for (int i = 0; i < 7; i++)
             {
                 if (i >= dayOfWeekLocalNumber)
@@ -150,47 +169,92 @@ namespace BlazorProducts.Client.Pages
                     today = DateTime.Today;
                     today = today.AddDays(i - dayOfWeekLocalNumber);
                     var nextDayStringReprCs = today.ToString("ddMM");
-                    tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
-                    tenantsForDay1.Add(new TenantsForDay
-                    {
-                        DayId = nextDayStringReprCs,
-                        TenantId = tenantsInDay
-                    });
+                    days1.Add(nextDayStringReprCs);
                 }
             }
-            completeTenantsForDay.Add(tenantsForDay1);
-            
+            var multipleDaysForTenant1 =  await TenantDayRepository.GetMultipleDaysForTenant(days1);            
+            completeTenantsForDay.Add(multipleDaysForTenant1);
+            //--
+
             // 2. line
+            //for (int i = 7; i < 14; i++)
+            //{                
+            //    today = DateTime.Today;
+            //    today = today.AddDays(i - dayOfWeekLocalNumber);
+            //    var nextDayStringReprCs = today.ToString("ddMM");
+            //    tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
+            //    tenantsForDay2.Add(new TenantsForDay
+            //    {
+            //        DayId = nextDayStringReprCs,
+            //        TenantId = tenantsInDay
+            //    });                
+            //}
+            //completeTenantsForDay.Add(tenantsForDay2);
+
+            //---
+            List<string> days2 = new List<string>();
             for (int i = 7; i < 14; i++)
-            {                
+            {
                 today = DateTime.Today;
                 today = today.AddDays(i - dayOfWeekLocalNumber);
                 var nextDayStringReprCs = today.ToString("ddMM");
-                tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
-                tenantsForDay2.Add(new TenantsForDay
-                {
-                    DayId = nextDayStringReprCs,
-                    TenantId = tenantsInDay
-                });                
+                days2.Add(nextDayStringReprCs);
             }
-            completeTenantsForDay.Add(tenantsForDay2);
-            
-            // 3. line
+            var multipleDaysForTenant2 = await TenantDayRepository.GetMultipleDaysForTenant(days2);
+            completeTenantsForDay.Add(multipleDaysForTenant2);
+            //--
+
+            //// 3. line
+            //for (int i = 14; i < 21; i++)
+            //{
+            //    today = DateTime.Today;
+            //    today = today.AddDays(i - dayOfWeekLocalNumber);
+            //    var nextDayStringReprCs = today.ToString("ddMM");
+            //    tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
+            //    tenantsForDay3.Add(new TenantsForDay
+            //    {
+            //        DayId = nextDayStringReprCs,
+            //        TenantId = tenantsInDay
+            //    });
+            //}
+            //completeTenantsForDay.Add(tenantsForDay3);
+
+
+            //---
+            List<string> days3 = new List<string>();
             for (int i = 14; i < 21; i++)
             {
                 today = DateTime.Today;
                 today = today.AddDays(i - dayOfWeekLocalNumber);
                 var nextDayStringReprCs = today.ToString("ddMM");
-                tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
-                tenantsForDay3.Add(new TenantsForDay
-                {
-                    DayId = nextDayStringReprCs,
-                    TenantId = tenantsInDay
-                });
+                days3.Add(nextDayStringReprCs);
             }
-            completeTenantsForDay.Add(tenantsForDay3);
-            
+            var multipleDaysForTenant3 = await TenantDayRepository.GetMultipleDaysForTenant(days3);
+            completeTenantsForDay.Add(multipleDaysForTenant3);
+            //--
+
+
             // 4. day
+            //for (int i = 21; i < 28; i++)
+            //{
+            //    if (i - dayOfWeekLocalNumber < nuberOfDaysToShow)
+            //    {
+            //        today = DateTime.Today;
+            //        today = today.AddDays(i - dayOfWeekLocalNumber);
+            //        var nextDayStringReprCs = today.ToString("ddMM");
+            //        tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
+            //        tenantsForDay4.Add(new TenantsForDay
+            //        {
+            //            DayId = nextDayStringReprCs,
+            //            TenantId = tenantsInDay
+            //        });
+            //    }
+            //}
+            //completeTenantsForDay.Add(tenantsForDay4);
+
+
+            //---
+            List<string> days4 = new List<string>();
             for (int i = 21; i < 28; i++)
             {
                 if (i - dayOfWeekLocalNumber < nuberOfDaysToShow)
@@ -198,17 +262,35 @@ namespace BlazorProducts.Client.Pages
                     today = DateTime.Today;
                     today = today.AddDays(i - dayOfWeekLocalNumber);
                     var nextDayStringReprCs = today.ToString("ddMM");
-                    tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
-                    tenantsForDay4.Add(new TenantsForDay
-                    {
-                        DayId = nextDayStringReprCs,
-                        TenantId = tenantsInDay
-                    });
+                    days4.Add(nextDayStringReprCs);
                 }
             }
-            completeTenantsForDay.Add(tenantsForDay4);
-            
+            var multipleDaysForTenant4 = await TenantDayRepository.GetMultipleDaysForTenant(days4);
+            completeTenantsForDay.Add(multipleDaysForTenant4);
+            //--
+
+
             // 5. line
+            //for (int i = 28; i < 35; i++)
+            //{
+            //    if (i - dayOfWeekLocalNumber < nuberOfDaysToShow)
+            //    {
+            //        today = DateTime.Today;
+            //        today = today.AddDays(i - dayOfWeekLocalNumber);
+            //        var nextDayStringReprCs = today.ToString("ddMM");
+            //        tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
+            //        tenantsForDay5.Add(new TenantsForDay
+            //        {
+            //            DayId = nextDayStringReprCs,
+            //            TenantId = tenantsInDay
+            //        });
+            //    }
+            //}
+            //completeTenantsForDay.Add(tenantsForDay5);
+
+
+            //---
+            List<string> days5 = new List<string>();
             for (int i = 28; i < 35; i++)
             {
                 if (i - dayOfWeekLocalNumber < nuberOfDaysToShow)
@@ -216,33 +298,49 @@ namespace BlazorProducts.Client.Pages
                     today = DateTime.Today;
                     today = today.AddDays(i - dayOfWeekLocalNumber);
                     var nextDayStringReprCs = today.ToString("ddMM");
-                    tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
-                    tenantsForDay5.Add(new TenantsForDay
-                    {
-                        DayId = nextDayStringReprCs,
-                        TenantId = tenantsInDay
-                    });
+                    days5.Add(nextDayStringReprCs);
                 }
             }
-            completeTenantsForDay.Add(tenantsForDay5);
-            
+            var multipleDaysForTenant5 = await TenantDayRepository.GetMultipleDaysForTenant(days5);
+            completeTenantsForDay.Add(multipleDaysForTenant5);
+            //--
+
+
             // 6. line
-            for (int i = 35; i < 42 - dayOfWeekLocalNumber + 1; i++)
+            //for (int i = 35; i < 42 - dayOfWeekLocalNumber + 1; i++)
+            //{
+            //    if (i - dayOfWeekLocalNumber < nuberOfDaysToShow)
+            //    {
+            //        today = DateTime.Today;
+            //        today = today.AddDays(i - dayOfWeekLocalNumber);
+            //        var nextDayStringReprCs = today.ToString("ddMM");
+            //        tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
+            //        tenantsForDay6.Add(new TenantsForDay
+            //        {
+            //            DayId = nextDayStringReprCs,
+            //            TenantId = tenantsInDay
+            //        });
+            //    }
+            //}
+            //completeTenantsForDay.Add(tenantsForDay6);
+
+
+            //---
+            List<string> days6 = new List<string>();
+            for (int i = 35; i < 42; i++)
             {
                 if (i - dayOfWeekLocalNumber < nuberOfDaysToShow)
                 {
                     today = DateTime.Today;
                     today = today.AddDays(i - dayOfWeekLocalNumber);
                     var nextDayStringReprCs = today.ToString("ddMM");
-                    tenantsInDay = await TenantDayRepository.GetDaysForTenant(nextDayStringReprCs);
-                    tenantsForDay6.Add(new TenantsForDay
-                    {
-                        DayId = nextDayStringReprCs,
-                        TenantId = tenantsInDay
-                    });
+                    days6.Add(nextDayStringReprCs);
                 }
             }
-            completeTenantsForDay.Add(tenantsForDay6);
+            var multipleDaysForTenant6 = await TenantDayRepository.GetMultipleDaysForTenant(days6);
+            completeTenantsForDay.Add(multipleDaysForTenant6);
+            //--
+
 
             return completeTenantsForDay;
         }
@@ -263,7 +361,7 @@ namespace BlazorProducts.Client.Pages
                 { 
                     tenantsDaysForUI = await TenantDayRepository.GetTenantDays(LoggedUserName);
                     tenantsForDay = await GetCalendarMap();
-                    tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId).ToList();
+                    tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId)/*.ToList()*/;
 
                     StateHasChanged();
                 }

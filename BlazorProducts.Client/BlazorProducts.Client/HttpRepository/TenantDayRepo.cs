@@ -1,5 +1,6 @@
 ﻿using Entities.DataTransferObjects;
 using Entities.Models;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -35,7 +36,17 @@ namespace BlazorProducts.Client.HttpRepository
             var tenantsForDay = await _client.GetFromJsonAsync<List<string>>($"parking/tenants/day/{dayId}");
 
             return tenantsForDay;
-        }      
+        }
+
+        public async Task<List<TenantsForDay>> GetMultipleDaysForTenant(List<string> days)
+        {
+            var result = await _client.PostAsJsonAsync($"parking/tenants/multpledays", days);
+            var content = await result.Content.ReadAsStringAsync();
+
+            var tenantsForDays = JsonConvert.DeserializeObject<List<TenantsForDay>>(content);
+
+            return tenantsForDays;
+        }
 
         public async Task BookDay(TenantDay tenant)
             => await _client.PutAsJsonAsync("parking/tenant/book", tenant);
@@ -44,7 +55,8 @@ namespace BlazorProducts.Client.HttpRepository
             => await _client.PutAsJsonAsync("parking/tenant/free", tenant);
 
         public async Task BookAllDaysFortenant(TenantSingle tenantSingle)
-        { 
+        {
+            _client.Timeout = new System.TimeSpan(60000);
             await _client.PutAsJsonAsync("parking/tenant/book/all", tenantSingle);
         }
 
