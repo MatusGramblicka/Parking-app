@@ -14,7 +14,7 @@ namespace BlazorProducts.Client.HttpRepository
 
         public TenantDayRepo(HttpClient client)
         {
-            _client = client;           
+            _client = client;
         }
 
         public async Task<Tenant> GetTenant(string tenantId)
@@ -55,8 +55,7 @@ namespace BlazorProducts.Client.HttpRepository
             => await _client.PutAsJsonAsync("parking/tenant/free", tenant);
 
         public async Task BookAllDaysFortenant(TenantSingle tenantSingle)
-        {
-            _client.Timeout = new System.TimeSpan(60000);
+        {            
             await _client.PutAsJsonAsync("parking/tenant/book/all", tenantSingle);
         }
 
