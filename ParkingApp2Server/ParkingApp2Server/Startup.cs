@@ -16,6 +16,7 @@ using ParkingApp2Server.Extensions;
 using ParkingApp2Server.Infrastructure;
 using ParkingApp2Server.Middlewares;
 using ParkingApp2Server.Services;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -76,7 +77,7 @@ namespace ParkingApp2Server
 
             services.AddWebSocketConnections();
 
-            //services.AddSingleton<IHostedService, HeartbeatService>();
+            services.AddSingleton<IHostedService, HeartbeatService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -103,7 +104,7 @@ namespace ParkingApp2Server
 
 
             ITextWebSocketSubprotocol textWebSocketSubprotocol = new PlainTextWebSocketSubprotocol();
-            WebSocketConnectionsOptions webSocketConnectionsOptions = new()
+            var webSocketConnectionsOptions = new WebSocketConnectionsOptions
             {
                 AllowedOrigins = new HashSet<string> { "https://localhost:5001" },
                 SupportedSubProtocols = new List<ITextWebSocketSubprotocol>
@@ -115,8 +116,10 @@ namespace ParkingApp2Server
                 SendSegmentSize = 4 * 1024
             };
 
-            app.UseWebSockets()
-                .MapWebSocketConnections("/socket", webSocketConnectionsOptions)
+            app.UseWebSockets(new WebSocketOptions
+            {
+                KeepAliveInterval = TimeSpan.FromSeconds(30)
+            }).MapWebSocketConnections("/socket", webSocketConnectionsOptions)
                 //.Run(async (context) =>
                 //{
                 //    await context.Response.WriteAsync("-- Demo.AspNetCore.WebSocket --");
