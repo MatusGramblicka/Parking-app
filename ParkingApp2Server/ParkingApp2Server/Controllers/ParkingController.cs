@@ -65,7 +65,7 @@ namespace ParkingApp2Server.Controllers
             {
                 var tenantRes = new List<string>();
                 var contextTenants = _context.Days.Include(a => a.Tenants);
-                var tenantsColl = contextTenants.Where(z => z.DayId.Equals(day.DayId)).Select(s => s.Tenants)/*.ToList()*/;
+                var tenantsColl = contextTenants.Where(z => z.DayId.Equals(day.DayId)).Select(s => s.Tenants);
                 foreach (var tenantColl in tenantsColl)
                 {
                     tenantRes = tenantColl.Select(da => da.TenantId).ToList();
@@ -122,7 +122,7 @@ namespace ParkingApp2Server.Controllers
 
             var days = new List<string>();
             var contextDays = _context.Tenants.Include(a => a.Days);
-            var daysColl = contextDays.Where(z => z.TenantId.Equals(tenantId)).Select(s => s.Days)/*.ToList()*/;
+            var daysColl = contextDays.Where(z => z.TenantId.Equals(tenantId)).Select(s => s.Days);
             foreach (var dayColl in daysColl)
             {
                 days = dayColl.Select(da => da.DayId).ToList();
@@ -145,7 +145,7 @@ namespace ParkingApp2Server.Controllers
             //https://stackoverflow.com/questions/52212247/entity-framework-core-returning-object-with-many-to-many-relationship
             var tenantRes = new List<string>();
             var contextTenants = _context.Days.Include(a => a.Tenants);
-            var tenantsColl = contextTenants.Where(z => z.DayId.Equals(dayId)).Select(s => s.Tenants)/*.ToList()*/;
+            var tenantsColl = contextTenants.Where(z => z.DayId.Equals(dayId)).Select(s => s.Tenants);
             foreach (var tenantColl in tenantsColl)
             {
                 tenantRes = tenantColl.Select(da => da.TenantId).ToList();
@@ -172,7 +172,7 @@ namespace ParkingApp2Server.Controllers
                 //https://stackoverflow.com/questions/52212247/entity-framework-core-returning-object-with-many-to-many-relationship
                 var tenantRes = new List<string>();
                 var contextTenants = _context.Days.Include(a => a.Tenants);
-                var tenantsColl = contextTenants.Where(z => z.DayId.Equals(dayId)).Select(s => s.Tenants)/*.ToList()*/;
+                var tenantsColl = contextTenants.Where(z => z.DayId.Equals(dayId)).Select(s => s.Tenants);
                 foreach (var tenantColl in tenantsColl)
                 {
                     tenantRes = tenantColl.Select(da => da.TenantId).ToList();
@@ -223,7 +223,7 @@ namespace ParkingApp2Server.Controllers
             // todo put into separate class, duplication from  [HttpGet("tenants/day/{dayId}")]   
             var tenantRes = new List<string>();
             var contextTenants = _context.Days.Include(a => a.Tenants);
-            var tenantsColl = contextTenants.Where(z => z.DayId.Equals(tenantDay.DayId)).Select(s => s.Tenants)/*.ToList()*/;
+            var tenantsColl = contextTenants.Where(z => z.DayId.Equals(tenantDay.DayId)).Select(s => s.Tenants);
             foreach (var tenantColl in tenantsColl)
             {
                 tenantRes = tenantColl.Select(da => da.TenantId).ToList();
@@ -234,7 +234,7 @@ namespace ParkingApp2Server.Controllers
 
             var days = new List<string>();
             var contextDays = _context.Tenants.Include(a => a.Days);
-            var daysColl = contextDays.Where(z => z.TenantId.Equals(tenantDay.TenantId)).Select(s => s.Days)/*.ToList()*/;
+            var daysColl = contextDays.Where(z => z.TenantId.Equals(tenantDay.TenantId)).Select(s => s.Days);
             foreach (var dayColl in daysColl)
             {
                 days = dayColl.Select(da => da.DayId).ToList();
@@ -283,7 +283,7 @@ namespace ParkingApp2Server.Controllers
             {
                 // checking whether for conrete day capacity is not overflowed
                 var tenantRes2 = new List<string>();
-                var tenantsColl2 = contextTenantsAndDays.Where(z => z.DayId.Equals(day.DayId)).Select(s => s.Tenants)/*.ToList()*/;
+                var tenantsColl2 = contextTenantsAndDays.Where(z => z.DayId.Equals(day.DayId)).Select(s => s.Tenants);
                 foreach (var tenantColl in tenantsColl2)
                 {
                     tenantRes2 = tenantColl.Select(da => da.TenantId).ToList();

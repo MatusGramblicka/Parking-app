@@ -236,7 +236,7 @@ namespace BlazorProducts.Client.Pages
                 {
                     webSocketMessage = JsonConvert.DeserializeObject<WebSocketMessageDayChange>(receivedAsText);
                 }
-                catch (Newtonsoft.Json.JsonReaderException ex)
+                catch (JsonReaderException ex)
                 {
                     continue;
                 }
