@@ -6,11 +6,13 @@ using Entities.DataTransferObjects;
 using Entities.Enums;
 using Entities.Models;
 using Entities.RequestFeatures;
+using Entities.WebSocket;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using ParkingApp2Server.Services;
 using System.Collections.Generic;
 using System.Linq;
@@ -245,7 +247,15 @@ namespace ParkingApp2Server.Controllers
 
             await _repository.SaveAsync();
 
-            await _webSocketConnectionsService.SendToAllAsync(WebSocketMessage.ParkingPlaceChange.ToString(), default);
+            var webSocketMessage = new WebSocketMessageDayChange
+            {
+                Message = WebSocketMessage.ParkingPlaceChange.ToString(),
+                TenantId = tenantDay.TenantId
+            };
+
+            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
+
+            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
 
             return NoContent();
         }
@@ -292,7 +302,15 @@ namespace ParkingApp2Server.Controllers
 
             await _repository.SaveAsync();
 
-            await _webSocketConnectionsService.SendToAllAsync(WebSocketMessage.ParkingPlaceChange.ToString(), default);
+            var webSocketMessage = new WebSocketMessageDayChange
+            {
+                Message = WebSocketMessage.ParkingPlaceChange.ToString(),
+                TenantId = tenantSingle.TenantId
+            };
+
+            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
+
+            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
 
             return NoContent();
         }
@@ -320,7 +338,15 @@ namespace ParkingApp2Server.Controllers
 
             await _context.SaveChangesAsync();
 
-            await _webSocketConnectionsService.SendToAllAsync(WebSocketMessage.ParkingPlaceChange.ToString(), default);
+            var webSocketMessage = new WebSocketMessageDayChange 
+            {
+                Message = WebSocketMessage.ParkingPlaceChange.ToString(),
+                TenantId = tenantSingle.TenantId
+            };
+
+            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
+
+            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
 
             return NoContent();
         }
@@ -350,7 +376,15 @@ namespace ParkingApp2Server.Controllers
 
             await _context.SaveChangesAsync();
 
-            await _webSocketConnectionsService.SendToAllAsync(WebSocketMessage.ParkingPlaceChange.ToString(), default);
+            var webSocketMessage = new WebSocketMessageDayChange
+            {
+                Message = WebSocketMessage.ParkingPlaceChange.ToString(),
+                TenantId = tenantDay.TenantId
+            };
+
+            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
+
+            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
 
             return NoContent();
         }
