@@ -47,6 +47,7 @@ namespace BlazorProducts.Client
 					(builder.Configuration.GetSection("ApiConfiguration"));
 
 			builder.Services.Configure<PriviledgedUsersConfiguration>(builder.Configuration.GetSection("PriviledgedUsers"));
+			builder.Services.Configure<WebSocketConfiguration>(builder.Configuration.GetSection("WebSocket"));
 
 			builder.Services.AddBlazoredToast();
 			builder.Services.AddBlazoredLocalStorage();

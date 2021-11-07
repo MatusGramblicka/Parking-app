@@ -2,11 +2,13 @@
 using BlazorProducts.Client.Features;
 using BlazorProducts.Client.HttpInterceptor;
 using BlazorProducts.Client.HttpRepository;
+using Entities.Configuration;
 using Entities.DataTransferObjects;
 using Entities.Enums;
 using Entities.Models;
 using Entities.WebSocket;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -19,7 +21,9 @@ using System.Threading.Tasks;
 namespace BlazorProducts.Client.Pages
 {
     public partial class Index
-    {
+    {       
+        [Inject]
+        public IOptions<WebSocketConfiguration> WebSocketSettings { get; set; }
         [Inject]
         public ITenantDayRepo TenantDayRepository { get; set; }
         [Inject]
@@ -35,21 +39,21 @@ namespace BlazorProducts.Client.Pages
         public List<string> tenantsInDay { get; set; } = new List<string>();
         public List<List<TenantsForDay>> tenantsForDay { get; set; } = new List<List<TenantsForDay>>();
         public IEnumerable<string> tenantsDayActualSelection { get; set; } = new List<string>();
+        public WebSocketConfiguration WebSocketConfiguration { get; set; }
 
-        const int nuberOfDaysToShow = 31;
+        private const int nuberOfDaysToShow = 31;
 
         //https://gist.github.com/SteveSandersonMS/5aaff6b010b0785075b0a08cc1e40e01
-        public CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
-        public ClientWebSocket webSocket = new ClientWebSocket();
-        public string message = "Hello, websocket!";
-        public string log = "";
+        private CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
+        private ClientWebSocket webSocket = new ClientWebSocket();       
 
         protected async override Task OnInitializedAsync()
         {
             Interceptor.RegisterEvent();
             Interceptor.RegisterBeforeSendEvent();
 
-            await webSocket.ConnectAsync(new Uri("wss://localhost:5011/socket"), disposalTokenSource.Token);
+            WebSocketConfiguration = WebSocketSettings.Value;
+            await webSocket.ConnectAsync(new Uri(WebSocketConfiguration.Connection), disposalTokenSource.Token);
             _ = ReceiveLoop();
 
             today = DateTime.Today;

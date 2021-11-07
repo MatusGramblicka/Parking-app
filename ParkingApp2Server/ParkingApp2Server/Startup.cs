@@ -100,13 +100,12 @@ namespace ParkingApp2Server
 
 
 
-
-
+            var wsSettings = Configuration.GetSection("WebSocket");
 
             ITextWebSocketSubprotocol textWebSocketSubprotocol = new PlainTextWebSocketSubprotocol();
             var webSocketConnectionsOptions = new WebSocketConnectionsOptions
             {
-                AllowedOrigins = new HashSet<string> { "https://localhost:5001" },
+                AllowedOrigins = new HashSet<string> { wsSettings["AllowedOrigins"] },
                 SupportedSubProtocols = new List<ITextWebSocketSubprotocol>
                 {
                     new JsonWebSocketSubprotocol(),
