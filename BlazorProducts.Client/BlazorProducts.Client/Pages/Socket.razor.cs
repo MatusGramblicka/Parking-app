@@ -3,20 +3,29 @@ using System.Threading.Tasks;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
+using Entities.Configuration;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Components;
 
 namespace BlazorProducts.Client.Pages
 {
     public partial class Socket
     {
+        public WebSocketConfiguration WebSocketConfiguration { get; set; }
+
+        [Inject]
+        public IOptions<WebSocketConfiguration> WebSocketSettings { get; set; }
+
         //https://gist.github.com/SteveSandersonMS/5aaff6b010b0785075b0a08cc1e40e01
-        public CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
-        public ClientWebSocket webSocket = new ClientWebSocket();
-        public string message = "Hello, websocket!";
-        public string log = "";
+        private CancellationTokenSource disposalTokenSource = new CancellationTokenSource();
+        private ClientWebSocket webSocket = new ClientWebSocket();
+        private string message = "Websocket!";
+        private string log = "";
 
         protected override async Task OnInitializedAsync()
         {
-            await webSocket.ConnectAsync(new Uri("wss://localhost:5011/socket"), disposalTokenSource.Token);
+            WebSocketConfiguration = WebSocketSettings.Value;
+            await webSocket.ConnectAsync(new Uri(WebSocketConfiguration.Connection), disposalTokenSource.Token);
             _ = ReceiveLoop();
         }
 
