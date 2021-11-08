@@ -3,5 +3,5 @@
     public class WebSocketConfiguration
     {
         public string Connection { get; set; }
-}
+    }
 }

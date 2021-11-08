@@ -1,10 +1,8 @@
 using Entities;
 using Entities.Configuration;
-//using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -88,7 +86,7 @@ namespace ParkingApp2Server
                 app.UseDeveloperExceptionPage();
                 //app.UseWebAssemblyDebugging();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BDayServer v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkingApp2Server v1"));
             }
             else
             {
@@ -124,9 +122,6 @@ namespace ParkingApp2Server
                 //    await context.Response.WriteAsync("-- Demo.AspNetCore.WebSocket --");
                 //})
                 ;
-
-
-
 
 
 
