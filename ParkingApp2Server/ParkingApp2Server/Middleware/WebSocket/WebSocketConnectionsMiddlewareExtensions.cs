@@ -1,8 +1,9 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
+using WebSocket.Middlewares;
 
-namespace ParkingApp2Server.Middlewares
+namespace ParkingApp2Server.Middleware.WebSocket
 {
     public static class WebSocketConnectionsMiddlewareExtensions
     {

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace Entities.DataTransferObjects
+namespace Entities.DTO
 {
     public class TenantsForDay
     {        
         public string DayId { get; set; }
-        public List<string> TenantId { get; set; }        
+        public List<string> TenantIds { get; set; }        
     }
 }

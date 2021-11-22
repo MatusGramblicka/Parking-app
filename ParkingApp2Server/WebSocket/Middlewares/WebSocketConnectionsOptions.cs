@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using ParkingApp2Server.Infrastructure;
+﻿using WebSocket.Contracts;
 
-namespace ParkingApp2Server.Middlewares
+namespace WebSocket.Middlewares
 {
     public class WebSocketConnectionsOptions
     {

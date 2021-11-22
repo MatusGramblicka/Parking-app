@@ -1,19 +1,13 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using ParkingApp2Server.Infrastructure;
+﻿using System.Collections.Concurrent;
+using WebSocket.Contracts;
+using WebSocket.Infrastructure;
 
-namespace ParkingApp2Server.Services
+namespace WebSocket
 {
     public class WebSocketConnectionsService : IWebSocketConnectionsService
     {
-        #region Fields
         private readonly ConcurrentDictionary<Guid, WebSocketConnection> _connections = new ConcurrentDictionary<Guid, WebSocketConnection>();
-        #endregion
 
-        #region Methods
         public void AddConnection(WebSocketConnection connection)
         {
             _connections.TryAdd(connection.Id, connection);
@@ -36,6 +30,5 @@ namespace ParkingApp2Server.Services
 
             return Task.WhenAll(connectionsTasks);
         }
-        #endregion
     }
 }

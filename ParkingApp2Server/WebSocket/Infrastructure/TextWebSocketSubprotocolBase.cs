@@ -1,9 +1,6 @@
-﻿using System;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Text;
 
-namespace ParkingApp2Server.Infrastructure
+namespace WebSocket.Infrastructure
 {
     public abstract class TextWebSocketSubprotocolBase
     {

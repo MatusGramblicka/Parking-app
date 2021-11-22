@@ -3,7 +3,7 @@ using BlazorProducts.Client.Features;
 using BlazorProducts.Client.HttpInterceptor;
 using BlazorProducts.Client.HttpRepository;
 using Entities.Configuration;
-using Entities.DataTransferObjects;
+using Entities.DTO;
 using Entities.Enums;
 using Entities.Models;
 using Entities.WebSocket;
@@ -72,7 +72,7 @@ namespace BlazorProducts.Client.Pages
 
             tenantsForDay = await GetCalendarMap();
 
-            tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId);
+            tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantIds.Contains(LoggedUserName)).Select(d => d.DayId);
         }        
 
         private async Task BookOrFreeDay(string day)
@@ -82,7 +82,7 @@ namespace BlazorProducts.Client.Pages
             if (tenantsDays.Contains(day))
             { 
                 await TenantDayRepository.FreeDay(new TenantDay { DayId = day.ToString(), TenantId = LoggedUserName });
-                tenantsForDay.SelectMany(s => s).Where(w => w.DayId == day).Single().TenantId.Remove(LoggedUserName);
+                tenantsForDay.SelectMany(s => s).Where(w => w.DayId == day).Single().TenantIds.Remove(LoggedUserName);
             }
             else
             {
@@ -90,14 +90,17 @@ namespace BlazorProducts.Client.Pages
                 if (tenantsForConcreteDay.Count < 2)
                 { 
                     await TenantDayRepository.BookDay(new TenantDay { DayId = day.ToString(), TenantId = LoggedUserName });
-                    tenantsForDay.SelectMany(s => s).Where(w => w.DayId == day).Single().TenantId.Add(LoggedUserName);
+                    tenantsForDay.SelectMany(s => s).Where(w => w.DayId == day).Single().TenantIds.Add(LoggedUserName);
                 }
                 else
                     tenantsForDay = await GetCalendarMap(); // if simultaneous 2 user booked the same day, one of them cant booked and then UI must be reload with updated days
             }
 
             tenantsDaysForUI = await TenantDayRepository.GetTenantDays(LoggedUserName);
-            tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId);
+            tenantsDayActualSelection = tenantsForDay
+                .SelectMany(s => s)
+                .Where(w => w.TenantIds.Contains(LoggedUserName))
+                .Select(d => d.DayId);
 
             StateHasChanged();
         }
@@ -249,7 +252,7 @@ namespace BlazorProducts.Client.Pages
                 { 
                     tenantsDaysForUI = await TenantDayRepository.GetTenantDays(LoggedUserName);
                     tenantsForDay = await GetCalendarMap();
-                    tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantId.Contains(LoggedUserName)).Select(d => d.DayId);
+                    tenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantIds.Contains(LoggedUserName)).Select(d => d.DayId);
 
                     StateHasChanged();
                 }

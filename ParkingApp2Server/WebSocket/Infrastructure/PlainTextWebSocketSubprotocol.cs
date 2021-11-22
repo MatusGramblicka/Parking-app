@@ -1,4 +1,6 @@
-﻿namespace ParkingApp2Server.Infrastructure
+﻿using WebSocket.Contracts;
+
+namespace WebSocket.Infrastructure
 {
     public class PlainTextWebSocketSubprotocol : TextWebSocketSubprotocolBase, ITextWebSocketSubprotocol
     {

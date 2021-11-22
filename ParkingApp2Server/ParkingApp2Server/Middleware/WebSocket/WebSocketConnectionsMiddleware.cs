@@ -1,30 +1,25 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net.WebSockets;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
-using ParkingApp2Server.Infrastructure;
-using ParkingApp2Server.Services;
+using WebSocket.Contracts;
+using WebSocket.Infrastructure;
+using WebSocket.Middlewares;
 
-namespace ParkingApp2Server.Middlewares
+namespace ParkingApp2Server.Middleware.WebSocket
 {
     public class WebSocketConnectionsMiddleware
-    {
-        #region Fields
+    {      
         private readonly WebSocketConnectionsOptions _options;
         private readonly IWebSocketConnectionsService _connectionsService;
-        #endregion
-
-        #region Constructor
+    
         public WebSocketConnectionsMiddleware(RequestDelegate next, WebSocketConnectionsOptions options, IWebSocketConnectionsService connectionsService)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _connectionsService = connectionsService ?? throw new ArgumentNullException(nameof(connectionsService));
         }
-        #endregion
-
-        #region Methods
+       
         public async Task Invoke(HttpContext context)
         {
             if (context.WebSockets.IsWebSocketRequest)
@@ -33,12 +28,11 @@ namespace ParkingApp2Server.Middlewares
                 {
                     ITextWebSocketSubprotocol textSubProtocol = NegotiateSubProtocol(context.WebSockets.WebSocketRequestedProtocols);
 
-                    WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                    //WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync(new WebSocketAcceptContext
-                    //{
-                    //    SubProtocol = textSubProtocol?.SubProtocol,
-                    //    DangerousEnableCompression = true
-                    //});
+                    System.Net.WebSockets.WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync(new WebSocketAcceptContext
+                    {
+                        SubProtocol = textSubProtocol?.SubProtocol,
+                        DangerousEnableCompression = true
+                    });
 
                     WebSocketConnection webSocketConnection = new WebSocketConnection(webSocket, textSubProtocol ?? _options.DefaultSubProtocol, _options.SendSegmentSize, _options.ReceivePayloadBufferSize);
                     webSocketConnection.ReceiveText += async (sender, message) => { await webSocketConnection.SendAsync(message, CancellationToken.None); };
@@ -85,6 +79,5 @@ namespace ParkingApp2Server.Middlewares
 
             return subProtocol;
         }
-        #endregion
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using WebSocket;
+using WebSocket.Contracts;
 
-namespace ParkingApp2Server.Services
+namespace ParkingApp2Server.Extensions
 {
     public static class WebSocketConnectionsServiceExtensions
     {

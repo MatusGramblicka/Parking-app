@@ -1,9 +1,6 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using ParkingApp2Server.Infrastructure;
+﻿using WebSocket.Infrastructure;
 
-namespace ParkingApp2Server.Services
+namespace WebSocket.Contracts
 {
     public interface IWebSocketConnectionsService
     {

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using WebSocket.Contracts;
 
-namespace ParkingApp2Server.Infrastructure
+namespace WebSocket.Infrastructure
 {
     public class JsonWebSocketSubprotocol : TextWebSocketSubprotocolBase, ITextWebSocketSubprotocol
     {

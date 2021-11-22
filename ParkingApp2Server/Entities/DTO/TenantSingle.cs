@@ -1,4 +1,4 @@
-﻿namespace Entities.DataTransferObjects
+﻿namespace Entities.DTO
 {
     public class TenantSingle
     {

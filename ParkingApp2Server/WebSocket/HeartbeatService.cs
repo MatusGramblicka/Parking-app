@@ -1,30 +1,23 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
+using WebSocket.Contracts;
 
-namespace ParkingApp2Server.Services
+namespace WebSocket
 {
     // currently commented in startup, maybe for later useage
     public class HeartbeatService : IHostedService
     {
-        #region Fields
         private const string HEARTBEAT_MESSAGE = "Demo.AspNetCore.WebSockets Heartbeat";
 
         private readonly IWebSocketConnectionsService _webSocketConnectionsService;
 
         private Task _heartbeatTask;
         private CancellationTokenSource _cancellationTokenSource;
-        #endregion
 
-        #region Constructor
         public HeartbeatService(IWebSocketConnectionsService webSocketConnectionsService)
         {
             _webSocketConnectionsService = webSocketConnectionsService;
         }
-        #endregion
 
-        #region Methods
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -56,6 +49,5 @@ namespace ParkingApp2Server.Services
                 await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
             }
         }
-        #endregion
     }
 }

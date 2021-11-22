@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace ParkingApp2Server.Infrastructure
+﻿namespace WebSocket.Contracts
 {
     public interface ITextWebSocketSubprotocol
     {

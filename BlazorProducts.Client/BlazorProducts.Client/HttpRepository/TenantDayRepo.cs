@@ -1,5 +1,4 @@
-﻿using Entities.DataTransferObjects;
-using Entities.Models;
+﻿using Entities.DTO;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -17,30 +16,30 @@ namespace BlazorProducts.Client.HttpRepository
             _client = client;
         }
 
-        public async Task<Tenant> GetTenant(string tenantId)
-        {
-            var tenant = await _client.GetFromJsonAsync<Tenant>($"parking/tenant/{tenantId}");
+        //public async Task<Tenant> GetTenant(string tenantId)
+        //{
+        //    var tenant = await _client.GetFromJsonAsync<Tenant>($"parking/tenant/{tenantId}");
 
-            return tenant;
-        }
+        //    return tenant;
+        //}
 
         public async Task<List<string>> GetTenantDays(string tenantId)
         {
-            var tenantDays = await _client.GetFromJsonAsync<List<string>>($"parking/tenant/days/{tenantId}");
+            var tenantDays = await _client.GetFromJsonAsync<List<string>>($"parking/tenant/{tenantId}/days");
 
             return tenantDays;
         }
 
         public async Task<List<string>> GetDaysForTenant(string dayId)
         {
-            var tenantsForDay = await _client.GetFromJsonAsync<List<string>>($"parking/tenants/day/{dayId}");
+            var tenantsForDay = await _client.GetFromJsonAsync<List<string>>($"parking/day/{dayId}/tenants");
 
             return tenantsForDay;
         }
 
         public async Task<List<TenantsForDay>> GetMultipleDaysForTenant(List<string> days)
         {
-            var result = await _client.PostAsJsonAsync($"parking/tenants/multpledays", days);
+            var result = await _client.PostAsJsonAsync($"parking/tenants/multipledays", days);
             var content = await result.Content.ReadAsStringAsync();
 
             var tenantsForDays = JsonConvert.DeserializeObject<List<TenantsForDay>>(content);

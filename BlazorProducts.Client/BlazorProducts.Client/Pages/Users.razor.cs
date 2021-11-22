@@ -3,7 +3,6 @@ using BlazorProducts.Client.Features;
 using BlazorProducts.Client.HttpInterceptor;
 using BlazorProducts.Client.HttpRepository;
 using Entities.Configuration;
-using Entities.DataTransferObjects;
 using Entities.DTO;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;

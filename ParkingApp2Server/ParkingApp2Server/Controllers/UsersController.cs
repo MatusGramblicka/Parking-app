@@ -90,7 +90,8 @@ namespace ParkingApp2Server.Controllers
 			{
 				// How many users are priviledged ones?
 				var allUsers = _userManager.Users.ToList();
-				var priviledgedUsersCount = allUsers.Where(w => w.Priviledged == true)
+				var priviledgedUsersCount = allUsers
+						.Where(w => w.Priviledged == true)
 						.ToList()
 						.Count;
 				if (priviledgedUsersCount >= _priviledgedUsersSettings.MaxCount)

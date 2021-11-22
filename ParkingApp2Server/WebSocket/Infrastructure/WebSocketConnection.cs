@@ -1,47 +1,35 @@
-﻿using System;
-using System.IO;
+﻿using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Net.WebSockets;
+using WebSocket.Contracts;
 
-namespace ParkingApp2Server.Infrastructure
+namespace WebSocket.Infrastructure
 {
     public class WebSocketConnection
     {
-        #region Fields
         private readonly int _receivePayloadBufferSize;
         private readonly int? _sendSegmentSize;
 
-        private readonly WebSocket _webSocket;
+        private readonly System.Net.WebSockets.WebSocket _webSocket;
         private readonly ITextWebSocketSubprotocol _textSubProtocol;
-        #endregion
 
-        #region Properties
         public Guid Id { get; } = Guid.NewGuid();
 
         public WebSocketCloseStatus? CloseStatus { get; private set; } = null;
 
         public string CloseStatusDescription { get; private set; } = null;
-        #endregion
 
-        #region Events
         public event EventHandler<string> ReceiveText;
 
         public event EventHandler<byte[]> ReceiveBinary;
-        #endregion
 
-        #region Constructor
-        public WebSocketConnection(WebSocket webSocket, ITextWebSocketSubprotocol textSubProtocol, int? sendSegmentSize, int receivePayloadBufferSize)
+        public WebSocketConnection(System.Net.WebSockets.WebSocket webSocket, ITextWebSocketSubprotocol textSubProtocol, int? sendSegmentSize, int receivePayloadBufferSize)
         {
             _webSocket = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
             _textSubProtocol = textSubProtocol ?? throw new ArgumentNullException(nameof(textSubProtocol));
             _sendSegmentSize = sendSegmentSize;
             _receivePayloadBufferSize = receivePayloadBufferSize;
         }
-        #endregion
 
-        #region Methods
         public Task SendAsync(string message, CancellationToken cancellationToken)
         {
             return _textSubProtocol.SendAsync(message, SendTextMessageBytesAsync, cancellationToken);
@@ -102,35 +90,34 @@ namespace ParkingApp2Server.Infrastructure
                         messageOffset += messageSegmentSize;
                         messageBytesToSend -= messageSegmentSize;
 
-                        await _webSocket.SendAsync(messageSegment, messageType, false/*GetMessageFlags(messageBytesToSend == 0, !compressMessage)*/, cancellationToken);
+                        await _webSocket.SendAsync(messageSegment, messageType, GetMessageFlags(messageBytesToSend == 0, !compressMessage), cancellationToken);
                     }
                 }
                 else
                 {
                     ArraySegment<byte> messageSegment = new ArraySegment<byte>(messageBytes, 0, messageBytes.Length);
 
-                    await _webSocket.SendAsync(messageSegment, messageType, true/*GetMessageFlags(true, !compressMessage)*/, cancellationToken);
+                    await _webSocket.SendAsync(messageSegment, messageType, GetMessageFlags(true, !compressMessage), cancellationToken);
                 }
             }
         }
+        
+        private static WebSocketMessageFlags GetMessageFlags(bool endOfMessage, bool disableCompression)
+        {
+            WebSocketMessageFlags messageFlags = WebSocketMessageFlags.None;
 
-        // dotnet core 6.0
-        //private static WebSocketMessageFlags GetMessageFlags(bool endOfMessage, bool disableCompression)
-        //{
-        //    WebSocketMessageFlags messageFlags = WebSocketMessageFlags.None;
+            if (endOfMessage)
+            {
+                messageFlags |= WebSocketMessageFlags.EndOfMessage;
+            }
 
-        //    if (endOfMessage)
-        //    {
-        //        messageFlags |= WebSocketMessageFlags.EndOfMessage;
-        //    }
+            if (disableCompression)
+            {
+                messageFlags |= WebSocketMessageFlags.DisableCompression;
+            }
 
-        //    if (disableCompression)
-        //    {
-        //        messageFlags |= WebSocketMessageFlags.DisableCompression;
-        //    }
-
-        //    return messageFlags;
-        //}
+            return messageFlags;
+        }
 
         private async Task<byte[]> ReceiveMessagePayloadAsync(WebSocketReceiveResult webSocketReceiveResult, byte[] receivePayloadBuffer)
         {
@@ -170,6 +157,5 @@ namespace ParkingApp2Server.Infrastructure
         {
             ReceiveBinary?.Invoke(this, webSocketMessage);
         }
-        #endregion
     }
 }
