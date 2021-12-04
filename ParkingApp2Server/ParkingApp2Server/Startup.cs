@@ -16,6 +16,9 @@ using ParkingApp2Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using WebHooks.Contracts;
+using WebHooks.Infrastructure;
+using WebHooks.Services;
 using WebSocket;
 using WebSocket.Contracts;
 using WebSocket.Infrastructure;
@@ -77,6 +80,16 @@ namespace ParkingApp2Server
             services.AddWebSocketConnections();
 
             services.AddSingleton<IHostedService, HeartbeatService>();
+
+            services.AddHttpClient();
+
+            services.AddTransient<IWebHookSender, WebHookSender>();
+            services.AddSingleton<IWebHookCallManagerFactory, WebHookCallManagerFactory>();
+            //services.AddSingleton<IWebHookSubscriptionRepository, WebHookSubscriptionRepository>();
+            services.AddSingleton<IWebHookPayloadProcessor, WebHookPayloadProcessor>();
+            services.AddScoped<IWebHookSubscriptionsProvider, WebHookSubscriptionsProvider>();
+
+            services.AddScoped<IWebSocketSender, WebSocketSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

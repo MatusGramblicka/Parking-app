@@ -9,6 +9,7 @@ namespace Repository
         private RepositoryContext _repositoryContext;
         private IDayRepository _dayRepository;
         private ITenantRepository _tenantRepository;
+        private IWebHookRepository _webHookRepository;
 
         public RepositoryManager(RepositoryContext repositoryContext)
         {
@@ -36,6 +37,18 @@ namespace Repository
                 return _tenantRepository;
             }
         }
+
+        public IWebHookRepository WebHook
+        {
+            get
+            {
+                if (_webHookRepository == null)
+                    _webHookRepository = new WebHookRepository(_repositoryContext);
+
+                return _webHookRepository;
+            }
+        }
+
         public Task SaveAsync() => _repositoryContext.SaveChangesAsync();
     }
 }

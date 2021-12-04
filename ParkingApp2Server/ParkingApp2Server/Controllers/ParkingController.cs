@@ -15,14 +15,16 @@ using Newtonsoft.Json;
 using Repository.Contracts;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using WebHooks.Contracts;
 using WebSocket.Contracts;
 
 namespace ParkingApp2Server.Controllers
 {
     [Route("api/parking")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class ParkingController : ControllerBase
     {
         private readonly IRepositoryManager _repository;
@@ -31,13 +33,19 @@ namespace ParkingApp2Server.Controllers
         private readonly PriviledgedUsersConfiguration _priviledgedUsersSettings;
         private readonly UserManager<User> _userManager;
         private readonly IWebSocketConnectionsService _webSocketConnectionsService;
+        private readonly IWebHookPayloadProcessor _webHookPayloadProcessor;
+        private readonly IWebSocketSender _webSocketSender;
+        private readonly IWebHookSubscriptionsProvider _webHookSubscriptionsProvider;
 
         public ParkingController(IRepositoryManager repository,
                                 IMapper mapper,
                                 RepositoryContext context, 
                                 IOptions<PriviledgedUsersConfiguration> priviledgedUsersSettings,
                                 UserManager<User> userManager,
-                                IWebSocketConnectionsService webSocketConnectionsService)
+                                IWebSocketConnectionsService webSocketConnectionsService,
+                                IWebHookPayloadProcessor webHookPayloadProcessor,
+                                IWebSocketSender webSocketSender,
+                                IWebHookSubscriptionsProvider webHookSubscriptionsProvider)
 
         {
             _repository = repository;
@@ -46,6 +54,9 @@ namespace ParkingApp2Server.Controllers
             _priviledgedUsersSettings = priviledgedUsersSettings.Value;
             _userManager = userManager;
             _webSocketConnectionsService = webSocketConnectionsService;
+            _webHookPayloadProcessor = webHookPayloadProcessor;
+            _webSocketSender = webSocketSender;
+            _webHookSubscriptionsProvider = webHookSubscriptionsProvider;
         }
 
         [HttpGet("/days")]
@@ -196,16 +207,24 @@ namespace ParkingApp2Server.Controllers
                 return BadRequest();
 
             day.Tenants.Add(tenant);
-            await _repository.SaveAsync();
-
-            var webSocketMessage = new WebSocketMessageDayChange
+            await _repository.SaveAsync();           
+            
+            var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
                 Message = WebSocketMessage.ParkingPlaceChange.ToString(),
                 TenantId = tenantDay.TenantId
-            };
+            });
 
-            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
-            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
+            await _webSocketSender.SendWebSocketMessage(message);
+
+            var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
+            if (subscriptions.Count > 0)
+            {
+                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                {
+                    Data = message
+                }));
+            }            
 
             return NoContent();
         }
@@ -224,13 +243,13 @@ namespace ParkingApp2Server.Controllers
             {
                 return NotFound();
             }
-           
+
             var contextDaysWithTenants = _context.Days.Include(a => a.Tenants);
 
             foreach (var day in contextDaysWithTenants)
             {
                 var tenantsColl = day.Tenants
-                                     .Select(da => da.TenantId)                                             
+                                     .Select(da => da.TenantId)
                                      .ToList();
 
                 if (tenantsColl.Contains(tenantSingle.TenantId) ||
@@ -238,18 +257,27 @@ namespace ParkingApp2Server.Controllers
                     continue;
 
                 day.Tenants.Add(tenant);
-            }            
+            }
 
             await _repository.SaveAsync();
 
-            var webSocketMessage = new WebSocketMessageDayChange
+            var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
                 Message = WebSocketMessage.ParkingPlaceChange.ToString(),
                 TenantId = tenantSingle.TenantId
-            };
+            });
 
-            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
-            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
+            await _webSocketSender.SendWebSocketMessage(message);
+
+            var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
+            if (subscriptions.Count > 0)
+            {
+                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                {
+                    Data = message
+                }));
+            }
+
 
             return NoContent();
         }
@@ -271,17 +299,24 @@ namespace ParkingApp2Server.Controllers
                 day.Tenants.Remove(tenant);
             }
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();            
 
-            var webSocketMessage = new WebSocketMessageDayChange 
+            var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
                 Message = WebSocketMessage.ParkingPlaceChange.ToString(),
                 TenantId = tenantSingle.TenantId
-            };
+            });
 
-            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
+            await _webSocketSender.SendWebSocketMessage(message);
 
-            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
+            var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
+            if (subscriptions.Count > 0)
+            {
+                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                {
+                    Data = message
+                }));
+            }
 
             return NoContent();
         }
@@ -316,16 +351,23 @@ namespace ParkingApp2Server.Controllers
 
             day.Tenants.Remove(tenantToRemove);
             await _context.SaveChangesAsync();
-
-            var webSocketMessage = new WebSocketMessageDayChange
+                      
+            var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
                 Message = WebSocketMessage.ParkingPlaceChange.ToString(),
                 TenantId = tenantDay.TenantId
-            };
+            });
 
-            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
+            await _webSocketSender.SendWebSocketMessage(message);
 
-            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
+            var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
+            if (subscriptions.Count > 0)
+            {
+                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                {
+                    Data = message
+                }));
+            }
 
             return NoContent();
         }

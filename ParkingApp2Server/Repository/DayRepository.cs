@@ -27,13 +27,6 @@ namespace Repository
 
         public async Task<IEnumerable<Day>> GetByNamesAsync(IEnumerable<string> dayNames, bool trackChanges) =>
             await FindByCondition(x => dayNames.Contains(x.DayId), trackChanges)
-            .ToListAsync();
-
-        //public void CreateDay(Day day) => Create(day);
-
-        //public void DeleteDay(Day day)
-        //{
-        //    Delete(day);
-        //}
+            .ToListAsync();        
     }
 }

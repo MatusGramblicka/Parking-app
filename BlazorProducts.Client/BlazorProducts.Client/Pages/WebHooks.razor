@@ -1,0 +1,16 @@
+﻿@page "/webhooks"
+@using BlazorProducts.Client.Components
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+<div class="row">
+    <div class="col-md-2">
+        <a class="btn btn-success mb-1" href="/createWebhook">New Webhook</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <WebhookTable Webhooks="WebhookList" OnDelete="DeleteWebhook" />
+    </div>
+</div>

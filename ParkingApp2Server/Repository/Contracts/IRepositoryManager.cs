@@ -6,6 +6,7 @@ namespace Repository.Contracts
     {
         IDayRepository Day { get; }
         ITenantRepository Tenant { get; }
+        IWebHookRepository WebHook { get; }
         Task SaveAsync();
     }
 }

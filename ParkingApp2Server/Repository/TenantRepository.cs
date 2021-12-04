@@ -36,22 +36,12 @@ namespace Repository
         }
         public async Task<Tenant> GetTenantAsync(string name, bool trackChanges) =>
             await FindByCondition(e => e.TenantId.Equals(name), trackChanges)
-            .SingleOrDefaultAsync();
-
-        //public async Task<Tenant> GetTenantAsync(string dayName, string name, bool trackChanges) =>
-        //    await FindByCondition(e => e.Days.Equals(dayName) && e.TenantId.Equals(name), trackChanges)
-        //    .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync();             
 
         public void CreateTenant(Tenant tenant)
         {            
             Create(tenant);
-        }
-
-        //public void CreateTenantForDay(string nameDay, Tenant tenant)
-        //{
-        //    tenant.Days.Add(nameDay);
-        //    Create(tenant);
-        //}
+        }       
 
         public void DeleteTenant(Tenant tenant)
         {

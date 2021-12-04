@@ -1,4 +1,4 @@
-﻿namespace Entities.Models
+﻿namespace Entities.Enums
 {
     public enum DayOfWeekLocal
     {       
