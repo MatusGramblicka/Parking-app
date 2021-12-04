@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using Contracts;
 using Entities;
 using Entities.Configuration;
-using Entities.DataTransferObjects;
+using Entities.DTO;
 using Entities.Enums;
 using Entities.Models;
 using Entities.RequestFeatures;
@@ -13,10 +12,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using ParkingApp2Server.Services;
+using Repository.Contracts;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using WebHooks.Contracts;
+using WebSocket.Contracts;
 
 namespace ParkingApp2Server.Controllers
 {
@@ -30,13 +32,20 @@ namespace ParkingApp2Server.Controllers
         private readonly RepositoryContext _context;
         private readonly PriviledgedUsersConfiguration _priviledgedUsersSettings;
         private readonly UserManager<User> _userManager;
-
         private readonly IWebSocketConnectionsService _webSocketConnectionsService;
+        private readonly IWebHookPayloadProcessor _webHookPayloadProcessor;
+        private readonly IWebSocketSender _webSocketSender;
+        private readonly IWebHookSubscriptionsProvider _webHookSubscriptionsProvider;
 
-        public ParkingController(IRepositoryManager repository, IMapper mapper,
-            RepositoryContext context, IOptions<PriviledgedUsersConfiguration> priviledgedUsersSettings,
-            UserManager<User> userManager,
-            IWebSocketConnectionsService webSocketConnectionsService)
+        public ParkingController(IRepositoryManager repository,
+                                IMapper mapper,
+                                RepositoryContext context, 
+                                IOptions<PriviledgedUsersConfiguration> priviledgedUsersSettings,
+                                UserManager<User> userManager,
+                                IWebSocketConnectionsService webSocketConnectionsService,
+                                IWebHookPayloadProcessor webHookPayloadProcessor,
+                                IWebSocketSender webSocketSender,
+                                IWebHookSubscriptionsProvider webHookSubscriptionsProvider)
 
         {
             _repository = repository;
@@ -45,6 +54,9 @@ namespace ParkingApp2Server.Controllers
             _priviledgedUsersSettings = priviledgedUsersSettings.Value;
             _userManager = userManager;
             _webSocketConnectionsService = webSocketConnectionsService;
+            _webHookPayloadProcessor = webHookPayloadProcessor;
+            _webSocketSender = webSocketSender;
+            _webHookSubscriptionsProvider = webHookSubscriptionsProvider;
         }
 
         [HttpGet("/days")]
@@ -55,34 +67,6 @@ namespace ParkingApp2Server.Controllers
             return Ok(days);
         }
 
-        [HttpGet("/daysExplicit")]
-        public async Task<IActionResult> GetDaysWithTenants()
-        {
-            var days = await _repository.Day.GetAllDaysAsync(trackChanges: false);
-            var daysWithTenants = new List<DayWithTenant>();
-
-            foreach (var day in days)
-            {
-                var tenantRes = new List<string>();
-                var contextTenants = _context.Days.Include(a => a.Tenants);
-                var tenantsColl = contextTenants.Where(z => z.DayId.Equals(day.DayId)).Select(s => s.Tenants);
-                foreach (var tenantColl in tenantsColl)
-                {
-                    tenantRes = tenantColl.Select(da => da.TenantId).ToList();
-                }
-
-                var dayWithTenants = new DayWithTenant
-                {
-                    DayId = day.DayId,
-                    Tenants = tenantRes
-                };
-
-                daysWithTenants.Add(dayWithTenants);
-            }
-
-            return Ok(daysWithTenants);
-        }
-
         [HttpGet("/tenants")]
         public async Task<IActionResult> GetTenants([FromQuery] TenantParameters tenantParameters)
         {
@@ -91,27 +75,36 @@ namespace ParkingApp2Server.Controllers
             return Ok(tenants);
         }
 
-        [HttpGet("/day")]
-        public async Task<IActionResult> GetDay([FromQuery] string dayId)
+        [HttpGet("/daysWithTenants")]
+        public IActionResult GetDaysWithTheirTenants()
         {
-            var day = await _repository.Day.GetDayAsync(dayId, trackChanges: false);
+            var context = _context.Days.Include(a => a.Tenants);
 
-            return Ok(day);
+            var daysWithTenants = context.Select(x => new TenantsForDay
+            {
+                DayId = x.DayId,
+                TenantIds = x.Tenants.Select(t => t.TenantId).ToList()
+            }).ToList();
+
+            return Ok(daysWithTenants);
+        }        
+
+        [HttpGet("/tenantsWithDays")]
+        public ActionResult<List<TenantWithDay>> GetTenantsWithTheirDays()
+        {
+            var context = _context.Tenants.Include(a => a.Days);
+
+            var tenantWithDays = context.Select(x => new TenantWithDay
+            {
+                TenantId = x.TenantId,
+                Days = x.Days.Select(t => t.DayId).ToList()
+            }).ToList();
+
+            return Ok(tenantWithDays);
         }
 
-        [HttpGet("tenant/{tenantId}")]
-        public async Task<IActionResult> GetTenant([FromRoute] string tenantId)
-        {
-            var tenant = await _repository.Tenant.GetTenantAsync(tenantId, trackChanges: false);
-
-            if (tenant == null)
-                return NotFound();
-
-            return Ok(tenant);
-        }
-
-        [HttpGet("tenant/days/{tenantId}")]
-        public async Task<IActionResult> GetTenantForDay([FromRoute] string tenantId)
+        [HttpGet("tenant/{tenantId}/days")]
+        public async Task<ActionResult<List<string>>> GetDaysOfTenant([FromRoute] string tenantId)
         {
             var tenant = await _repository.Tenant.GetTenantAsync(tenantId, trackChanges: false);
 
@@ -120,19 +113,17 @@ namespace ParkingApp2Server.Controllers
                 return NotFound();
             }
 
-            var days = new List<string>();
-            var contextDays = _context.Tenants.Include(a => a.Days);
-            var daysColl = contextDays.Where(z => z.TenantId.Equals(tenantId)).Select(s => s.Days);
-            foreach (var dayColl in daysColl)
-            {
-                days = dayColl.Select(da => da.DayId).ToList();
-            }
+            var context = _context.Tenants
+                .Where(w => w.TenantId == tenantId)
+                .Include(a => a.Days);
+
+            var days = context.SelectMany(s => s.Days.Select(t => t.DayId)).ToList();
 
             return Ok(days);
-        }
+        }    
 
-        [HttpGet("tenants/day/{dayId}")]
-        public async Task<IActionResult> GetTenantsForDay([FromRoute] string dayId)
+        [HttpGet("day/{dayId}/tenants")]
+        public async Task<ActionResult<List<string>>> GetTenantsOfDay([FromRoute] string dayId)
         {
             var day = await _repository.Day.GetDayAsync(dayId, trackChanges: false);
 
@@ -141,52 +132,30 @@ namespace ParkingApp2Server.Controllers
                 return NotFound();
             }
 
-            // todo put into separate class, duplication in    [HttpPut("tenant/book")]       
-            //https://stackoverflow.com/questions/52212247/entity-framework-core-returning-object-with-many-to-many-relationship
-            var tenantRes = new List<string>();
-            var contextTenants = _context.Days.Include(a => a.Tenants);
-            var tenantsColl = contextTenants.Where(z => z.DayId.Equals(dayId)).Select(s => s.Tenants);
-            foreach (var tenantColl in tenantsColl)
-            {
-                tenantRes = tenantColl.Select(da => da.TenantId).ToList();
-            }
+            var context = _context.Days
+                .Where(w => w.DayId == dayId)
+                .Include(a => a.Tenants);
 
-            return Ok(tenantRes);
+            var tenants = context.SelectMany(s => s.Tenants.Select(t => t.TenantId)).ToList();
+
+            return Ok(tenants);
         }
 
-        [HttpPost("tenants/multpledays")]
-        public async Task<IActionResult> GetTenantsForMultipleDay([FromBody] List<string> days)
+        [HttpPost("tenants/multipledays")]
+        public ActionResult<List<TenantsForDay>> GetTenantsForMultipleDays([FromBody] List<string> days)
         {
-            var tenantsForDays = new List<TenantsForDay>();
+            var context = _context.Days
+                .Where(x => days.Contains(x.DayId))
+                .Include(a => a.Tenants);
 
-            foreach (var dayId in days)
+            var daysWithTenants = context.Select(x => new TenantsForDay
             {
-                var day = await _repository.Day.GetDayAsync(dayId, trackChanges: false);
+                DayId = x.DayId,
+                TenantIds = x.Tenants.Select(t => t.TenantId).ToList()
+            }).ToList();
 
-                if (day == null)
-                {
-                    return NotFound();
-                }
-
-                // todo put into separate class, duplication in    [HttpPut("tenant/book")]       
-                //https://stackoverflow.com/questions/52212247/entity-framework-core-returning-object-with-many-to-many-relationship
-                var tenantRes = new List<string>();
-                var contextTenants = _context.Days.Include(a => a.Tenants);
-                var tenantsColl = contextTenants.Where(z => z.DayId.Equals(dayId)).Select(s => s.Tenants);
-                foreach (var tenantColl in tenantsColl)
-                {
-                    tenantRes = tenantColl.Select(da => da.TenantId).ToList();
-                }
-
-                tenantsForDays.Add(new TenantsForDay
-                {
-                    DayId = dayId,
-                    TenantId = tenantRes
-                });
-            }
-            return Ok(tenantsForDays);
+            return Ok(daysWithTenants);
         }
-
 
         [HttpPost("/tenant/create")]
         public async Task<IActionResult> CreateTenant([FromBody] Tenant tenant)
@@ -219,43 +188,43 @@ namespace ParkingApp2Server.Controllers
             {
                 return NotFound();
             }
+            
+            var contextTenants = _context.Days
+                                        .Where(z => z.DayId == tenantDay.DayId)
+                                        .Include(a => a.Tenants)
+                                        .SelectMany(s => s.Tenants.Select(t=>t.TenantId))
+                                        .ToList();          
 
-            // todo put into separate class, duplication from  [HttpGet("tenants/day/{dayId}")]   
-            var tenantRes = new List<string>();
-            var contextTenants = _context.Days.Include(a => a.Tenants);
-            var tenantsColl = contextTenants.Where(z => z.DayId.Equals(tenantDay.DayId)).Select(s => s.Tenants);
-            foreach (var tenantColl in tenantsColl)
-            {
-                tenantRes = tenantColl.Select(da => da.TenantId).ToList();
-            }
+            if (contextTenants.Count >= _priviledgedUsersSettings.MaxCount)
+                return BadRequest();            
 
-            if (tenantRes.Count >= _priviledgedUsersSettings.MaxCount)
-                return BadRequest();
+            var contextDays = _context.Tenants
+                                    .Where(z => z.TenantId == tenantDay.TenantId)
+                                    .Include(a => a.Days)                
+                                    .SelectMany(s => s.Days.Select(d=>d.DayId)).ToList();
 
-            var days = new List<string>();
-            var contextDays = _context.Tenants.Include(a => a.Days);
-            var daysColl = contextDays.Where(z => z.TenantId.Equals(tenantDay.TenantId)).Select(s => s.Days);
-            foreach (var dayColl in daysColl)
-            {
-                days = dayColl.Select(da => da.DayId).ToList();
-            }
-
-            if (days.Contains(tenantDay.DayId))
+            if (contextDays.Contains(tenantDay.DayId))
                 return BadRequest();
 
             day.Tenants.Add(tenant);
-
-            await _repository.SaveAsync();
-
-            var webSocketMessage = new WebSocketMessageDayChange
+            await _repository.SaveAsync();           
+            
+            var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
                 Message = WebSocketMessage.ParkingPlaceChange.ToString(),
                 TenantId = tenantDay.TenantId
-            };
+            });
 
-            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
+            await _webSocketSender.SendWebSocketMessage(message);
 
-            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
+            var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
+            if (subscriptions.Count > 0)
+            {
+                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                {
+                    Data = message
+                }));
+            }            
 
             return NoContent();
         }
@@ -275,42 +244,40 @@ namespace ParkingApp2Server.Controllers
                 return NotFound();
             }
 
-            var days = await _repository.Day.GetAllDaysAsync(trackChanges: false);
-            var daysWithTenants = new List<DayWithTenant>();
-            var contextTenantsAndDays = _context.Days.Include(a => a.Tenants);
+            var contextDaysWithTenants = _context.Days.Include(a => a.Tenants);
 
-            foreach (var day in days)
+            foreach (var day in contextDaysWithTenants)
             {
-                // checking whether for conrete day capacity is not overflowed
-                var tenantRes2 = new List<string>();
-                var tenantsColl2 = contextTenantsAndDays.Where(z => z.DayId.Equals(day.DayId)).Select(s => s.Tenants);
-                foreach (var tenantColl in tenantsColl2)
-                {
-                    tenantRes2 = tenantColl.Select(da => da.TenantId).ToList();
-                }
+                var tenantsColl = day.Tenants
+                                     .Select(da => da.TenantId)
+                                     .ToList();
 
-                if (tenantRes2.Contains(tenantSingle.TenantId))
+                if (tenantsColl.Contains(tenantSingle.TenantId) ||
+                    tenantsColl.Count >= _priviledgedUsersSettings.MaxCount)
                     continue;
 
-                if (tenantRes2.Count >= _priviledgedUsersSettings.MaxCount)
-                    continue;
-
-                var day2 = await _repository.Day.GetDayAsync(day.DayId, trackChanges: true);
-
-                day2.Tenants.Add(tenant);
+                day.Tenants.Add(tenant);
             }
 
             await _repository.SaveAsync();
 
-            var webSocketMessage = new WebSocketMessageDayChange
+            var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
                 Message = WebSocketMessage.ParkingPlaceChange.ToString(),
                 TenantId = tenantSingle.TenantId
-            };
+            });
 
-            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
+            await _webSocketSender.SendWebSocketMessage(message);
 
-            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
+            var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
+            if (subscriptions.Count > 0)
+            {
+                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                {
+                    Data = message
+                }));
+            }
+
 
             return NoContent();
         }
@@ -325,28 +292,31 @@ namespace ParkingApp2Server.Controllers
                 return NotFound();
             }
 
-            var days = await _repository.Day.GetAllDaysAsync(trackChanges: true);
+            var days = _context.Days.Include(p => p.Tenants);
 
             foreach (var day in days)
             {
-                var dayconcrete1 = _context.Days.Include(p => p.Tenants).Single(s => s.DayId == day.DayId);
-
-                dayconcrete1.Tenants.Remove(tenant);
-
-                await _context.SaveChangesAsync();
+                day.Tenants.Remove(tenant);
             }
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();            
 
-            var webSocketMessage = new WebSocketMessageDayChange 
+            var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
                 Message = WebSocketMessage.ParkingPlaceChange.ToString(),
                 TenantId = tenantSingle.TenantId
-            };
+            });
 
-            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
+            await _webSocketSender.SendWebSocketMessage(message);
 
-            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
+            var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
+            if (subscriptions.Count > 0)
+            {
+                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                {
+                    Data = message
+                }));
+            }
 
             return NoContent();
         }
@@ -355,36 +325,49 @@ namespace ParkingApp2Server.Controllers
         public async Task<IActionResult> RemoveTenantFromDay([FromBody] TenantDay tenantDay)
         {
             var tenant = await _repository.Tenant.GetTenantAsync(tenantDay.TenantId, trackChanges: true);
-
             if (tenant == null)
             {
                 return NotFound();
             }
 
             var dayInDb = await _repository.Day.GetDayAsync(tenantDay.DayId, trackChanges: true);
-
             if (dayInDb == null)
             {
                 return NotFound();
             }
 
-            //Direct many-to-many usage: Remove a link
-            //https://www.thereformedprogrammer.net/updating-many-to-many-relationships-in-ef-core-5-and-above/
-            var day = _context.Days.Include(p => p.Tenants).Single(s => s.DayId == tenantDay.DayId);
-            var tenantToRemove = day.Tenants.Single(x => x.TenantId == tenantDay.TenantId);
+            //Direct many-to-many usage: Remove a link https://www.thereformedprogrammer.net/updating-many-to-many-relationships-in-ef-core-5-and-above/
+            var day = _context.Days
+                .Where(s => s.DayId == tenantDay.DayId)
+                .Include(p => p.Tenants)
+                .Single();
+            var tenantToRemove = day.Tenants
+                .SingleOrDefault(x => x.TenantId == tenantDay.TenantId);
+
+            if (tenantToRemove == null)
+            {
+                return BadRequest();
+            }
+
             day.Tenants.Remove(tenantToRemove);
-
             await _context.SaveChangesAsync();
-
-            var webSocketMessage = new WebSocketMessageDayChange
+                      
+            var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
                 Message = WebSocketMessage.ParkingPlaceChange.ToString(),
                 TenantId = tenantDay.TenantId
-            };
+            });
 
-            var webSocketMessageSerialized = JsonConvert.SerializeObject(webSocketMessage);
+            await _webSocketSender.SendWebSocketMessage(message);
 
-            await _webSocketConnectionsService.SendToAllAsync(webSocketMessageSerialized, default);
+            var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
+            if (subscriptions.Count > 0)
+            {
+                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                {
+                    Data = message
+                }));
+            }
 
             return NoContent();
         }
@@ -404,5 +387,115 @@ namespace ParkingApp2Server.Controllers
 
             return NoContent();
         }
+
+
+
+
+
+
+        //[HttpGet("/daysExplicit")]
+        //public async Task<IActionResult> GetDaysWithTenants()
+        //{
+        //    var days = await _repository.Day.GetAllDaysAsync(trackChanges: false);
+        //    var daysWithTenants = new List<DayWithTenant>();
+
+        //    foreach (var day in days)
+        //    {
+        //        var tenantRes = new List<string>();
+        //        var contextTenants = _context.Days.Include(a => a.Tenants);
+        //        var tenantsColl = contextTenants.Where(z => z.DayId.Equals(day.DayId)).Select(s => s.Tenants);
+        //        foreach (var tenantColl in tenantsColl)
+        //        {
+        //            tenantRes = tenantColl.Select(da => da.TenantId).ToList();
+        //        }
+
+        //        var dayWithTenants = new DayWithTenant
+        //        {
+        //            DayId = day.DayId,
+        //            Tenants = tenantRes
+        //        };
+
+        //        daysWithTenants.Add(dayWithTenants);
+        //    }
+
+        //    return Ok(daysWithTenants);
+        //}
+
+        //[HttpGet("tenant/days2/{tenantId}")]
+        //public async Task<IActionResult> GetDaysOfTenant2([FromRoute] string tenantId)
+        //{
+        //    var tenant = await _repository.Tenant.GetTenantAsync(tenantId, trackChanges: false);
+
+        //    if (tenant == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var days = new List<string>();
+        //    var contextDays = _context.Tenants.Include(a => a.Days);
+        //    var daysColl = contextDays.Where(z => z.TenantId.Equals(tenantId)).Select(s => s.Days);
+        //    foreach (var dayColl in daysColl)
+        //    {
+        //        days = dayColl.Select(da => da.DayId).ToList();
+        //    }
+
+        //    return Ok(days);
+        //}
+
+        //[HttpGet("tenants/day2/{dayId}")]
+        //public async Task<IActionResult> GetTenantsOfDay2([FromRoute] string dayId)
+        //{
+        //    var day = await _repository.Day.GetDayAsync(dayId, trackChanges: false);
+
+        //    if (day == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    // todo put into separate class, duplication in    [HttpPut("tenant/book")]       
+        //    //https://stackoverflow.com/questions/52212247/entity-framework-core-returning-object-with-many-to-many-relationship
+        //    var tenantRes = new List<string>();
+        //    var contextTenants = _context.Days.Include(a => a.Tenants);
+        //    var tenantsColl = contextTenants.Where(z => z.DayId.Equals(dayId)).Select(s => s.Tenants);
+        //    foreach (var tenantColl in tenantsColl)
+        //    {
+        //        tenantRes = tenantColl.Select(da => da.TenantId).ToList();
+        //    }
+
+        //    return Ok(tenantRes);
+        //}
+
+        //[HttpPost("tenants/multipledays2")]
+        //public async Task<IActionResult> GetTenantsForMultipleDays2([FromBody] List<string> days)
+        //{
+        //    var tenantsForDays = new List<TenantsForDay>();
+
+        //    foreach (var dayId in days)
+        //    {
+        //        var day = await _repository.Day.GetDayAsync(dayId, trackChanges: false);
+
+        //        if (day == null)
+        //        {
+        //            return NotFound();
+        //        }
+
+        //        // todo put into separate class, duplication in    [HttpPut("tenant/book")]       
+        //        //https://stackoverflow.com/questions/52212247/entity-framework-core-returning-object-with-many-to-many-relationship
+        //        var tenantRes = new List<string>();
+        //        var contextTenants = _context.Days.Include(a => a.Tenants);
+        //        var tenantsColl = contextTenants.Where(z => z.DayId.Equals(dayId)).Select(s => s.Tenants);
+        //        foreach (var tenantColl in tenantsColl)
+        //        {
+        //            tenantRes = tenantColl.Select(da => da.TenantId).ToList();
+        //        }
+
+        //        tenantsForDays.Add(new TenantsForDay
+        //        {
+        //            DayId = dayId,
+        //            TenantId = tenantRes
+        //        });
+        //    }
+        //    return Ok(tenantsForDays);
+        //}
     }
 }

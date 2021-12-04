@@ -11,12 +11,18 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ParkingApp2Server.Extensions;
-using ParkingApp2Server.Infrastructure;
-using ParkingApp2Server.Middlewares;
+using ParkingApp2Server.Middleware.WebSocket;
 using ParkingApp2Server.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using WebHooks.Contracts;
+using WebHooks.Infrastructure;
+using WebHooks.Services;
+using WebSocket;
+using WebSocket.Contracts;
+using WebSocket.Infrastructure;
+using WebSocket.Middlewares;
 
 namespace ParkingApp2Server
 {
@@ -71,11 +77,19 @@ namespace ParkingApp2Server
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ParkingApp", Version = "v1" });
             });
 
-
-
             services.AddWebSocketConnections();
 
             services.AddSingleton<IHostedService, HeartbeatService>();
+
+            services.AddHttpClient();
+
+            services.AddTransient<IWebHookSender, WebHookSender>();
+            services.AddSingleton<IWebHookCallManagerFactory, WebHookCallManagerFactory>();
+            //services.AddSingleton<IWebHookSubscriptionRepository, WebHookSubscriptionRepository>();
+            services.AddSingleton<IWebHookPayloadProcessor, WebHookPayloadProcessor>();
+            services.AddScoped<IWebHookSubscriptionsProvider, WebHookSubscriptionsProvider>();
+
+            services.AddScoped<IWebSocketSender, WebSocketSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -96,8 +110,6 @@ namespace ParkingApp2Server
             app.UseHttpsRedirection();
             app.UseCors("CorsPolicy");
 
-
-
             var wsSettings = Configuration.GetSection("WebSocket");
 
             ITextWebSocketSubprotocol textWebSocketSubprotocol = new PlainTextWebSocketSubprotocol();
@@ -116,14 +128,7 @@ namespace ParkingApp2Server
             app.UseWebSockets(new WebSocketOptions
             {
                 KeepAliveInterval = TimeSpan.FromSeconds(30)
-            }).MapWebSocketConnections("/socket", webSocketConnectionsOptions)
-                //.Run(async (context) =>
-                //{
-                //    await context.Response.WriteAsync("-- Demo.AspNetCore.WebSocket --");
-                //})
-                ;
-
-
+            }).MapWebSocketConnections("/socket", webSocketConnectionsOptions);
 
             app.UseStaticFiles();           
 

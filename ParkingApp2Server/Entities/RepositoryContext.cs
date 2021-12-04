@@ -23,5 +23,6 @@ namespace Entities
 
         public DbSet<Day> Days { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
+        public DbSet<WebHookSubscription> WebHookSubscriptions { get; set; }
     }
 }

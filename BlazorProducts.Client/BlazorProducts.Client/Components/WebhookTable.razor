@@ -1,0 +1,53 @@
+﻿@if (Webhooks.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>               
+                <th scope="col">WebhookUri</th>
+                <th scope="col">SigningSecret</th>
+                <th scope="col">SignatureHeaderName</th>
+                <th scope="col">Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var webhook in Webhooks)
+            {
+            <tr>                
+                <td class="align-middle">                    
+                    @webhook.WebHookUri                    
+                </td>
+                <td class="align-middle">
+                    @webhook.SigningSecret
+                </td>
+                <td class="align-middle">
+                    @webhook.SignatureHeaderName
+                </td>           
+                <td class="align-middle">
+                    <button type="button" class="btn btn-danger"
+                            @onclick="() => CallConfirmationModal(webhook.Id)">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    <Confirmation BodyMessage="Do you want to delete this webhook?"
+                  OnOKClicked="DeleteWebhook" @ref="_confirmation" />
+}
+else
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">WebhookUri</th>
+            <th scope="col">SigningSecret</th>
+            <th scope="col">SignatureHeaderName</th>
+            <th scope="col">Delete</th>
+        </tr>
+    </thead>    
+</table>
+<span>
+    Loading webhooks...
+</span>
+}

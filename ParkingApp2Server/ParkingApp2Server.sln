@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParkingApp2Server", "ParkingApp2Server\ParkingApp2Server.csproj", "{DD53BF43-BCEE-42F2-B889-DDA76A6E6EBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParkingApp2Server", "ParkingApp2Server\ParkingApp2Server.csproj", "{DD53BF43-BCEE-42F2-B889-DDA76A6E6EBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{743342F6-A87B-43B7-8C1A-337B69E6F4D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entities", "Entities\Entities.csproj", "{743342F6-A87B-43B7-8C1A-337B69E6F4D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{D2D18694-916C-450F-AF87-E4218061EB2A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Repository.csproj", "{D2D18694-916C-450F-AF87-E4218061EB2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Contracts.csproj", "{2674FF0C-F20F-4374-B2B7-C72D117E9958}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebHooks", "WebHooks\WebHooks.csproj", "{70E4A075-8BE4-4699-AE68-B94368D773E4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSocket", "WebSocket\WebSocket.csproj", "{EAD41B7A-3A77-47CA-BCCE-D890CF16BAD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +31,14 @@ Global
 		{D2D18694-916C-450F-AF87-E4218061EB2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2D18694-916C-450F-AF87-E4218061EB2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2D18694-916C-450F-AF87-E4218061EB2A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2674FF0C-F20F-4374-B2B7-C72D117E9958}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2674FF0C-F20F-4374-B2B7-C72D117E9958}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2674FF0C-F20F-4374-B2B7-C72D117E9958}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2674FF0C-F20F-4374-B2B7-C72D117E9958}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70E4A075-8BE4-4699-AE68-B94368D773E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70E4A075-8BE4-4699-AE68-B94368D773E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70E4A075-8BE4-4699-AE68-B94368D773E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70E4A075-8BE4-4699-AE68-B94368D773E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAD41B7A-3A77-47CA-BCCE-D890CF16BAD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAD41B7A-3A77-47CA-BCCE-D890CF16BAD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAD41B7A-3A77-47CA-BCCE-D890CF16BAD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAD41B7A-3A77-47CA-BCCE-D890CF16BAD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

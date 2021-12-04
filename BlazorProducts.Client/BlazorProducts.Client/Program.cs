@@ -57,6 +57,7 @@ namespace BlazorProducts.Client
 
 			builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 			builder.Services.AddScoped<IUsersHttpRepository, UsersHttpRepository>();
+			builder.Services.AddScoped<IWebHookRepository, WebHookRepository>();
 
 			builder.Services.AddScoped<RefreshTokenService>();
 

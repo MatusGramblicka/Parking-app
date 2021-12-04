@@ -1,4 +1,5 @@
 ﻿@page "/"
+@page "/parking"
 @using Microsoft.AspNetCore.Authorization
 
 @attribute [Authorize]
@@ -57,7 +58,7 @@
                         var nextDayStringRepr = tenantsForDay[0][i - dayOfWeekLocalNumber].DayId;
                         var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[0][i - dayOfWeekLocalNumber].TenantId.Count, tenantsDaysForUI, nextDayStringRepr);
+                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[0][i - dayOfWeekLocalNumber].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
 
                         @if (calendarButtontype == "btn-danger")
                         {
@@ -83,7 +84,7 @@
                         var nextDayStringRepr = tenantsForDay[1][i - 7].DayId;
                         var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[1][i - 7].TenantId.Count, tenantsDaysForUI, nextDayStringRepr);
+                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[1][i - 7].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
 
                         @if (calendarButtontype == "btn-danger")
                         {
@@ -107,7 +108,7 @@
                         var nextDayStringRepr = tenantsForDay[2][i - 14].DayId;
                         var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[2][i - 14].TenantId.Count, tenantsDaysForUI, nextDayStringRepr);
+                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[2][i - 14].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
 
                         @if (calendarButtontype == "btn-danger")
                         {
@@ -134,7 +135,7 @@
                             var nextDayStringRepr = tenantsForDay[3][i - 21].DayId;
                             var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[3][i - 21].TenantId.Count, tenantsDaysForUI, nextDayStringRepr);
+                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[3][i - 21].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
 
                             @if (calendarButtontype == "btn-danger")
                             {
@@ -162,7 +163,7 @@
                             var nextDayStringRepr = tenantsForDay[4][i - 28].DayId;
                             var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[4][i - 28].TenantId.Count, tenantsDaysForUI, nextDayStringRepr);
+                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[4][i - 28].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
 
                             @if (calendarButtontype == "btn-danger")
                             {
@@ -192,7 +193,7 @@
                             var nextDayStringRepr = tenantsForDay[5][i - 35].DayId;
                             var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[5][i - 35].TenantId.Count, tenantsDaysForUI, nextDayStringRepr);
+                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[5][i - 35].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
 
                             @if (calendarButtontype == "btn-danger")
                             {

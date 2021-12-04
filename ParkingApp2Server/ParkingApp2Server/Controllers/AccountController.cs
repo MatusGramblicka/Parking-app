@@ -1,10 +1,10 @@
-﻿using Contracts;
-using Entities;
+﻿using Entities;
 using Entities.DTO;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ParkingApp2Server.Services;
+using Repository.Contracts;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
