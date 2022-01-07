@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Repository.Contracts;
+using SlimBus.Client;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -36,6 +38,7 @@ namespace ParkingApp2Server.Controllers
         private readonly IWebHookPayloadProcessor _webHookPayloadProcessor;
         private readonly IWebSocketSender _webSocketSender;
         private readonly IWebHookSubscriptionsProvider _webHookSubscriptionsProvider;
+        private readonly IMessagePublisher _messagePublisher;
 
         public ParkingController(IRepositoryManager repository,
                                 IMapper mapper,
@@ -45,7 +48,8 @@ namespace ParkingApp2Server.Controllers
                                 IWebSocketConnectionsService webSocketConnectionsService,
                                 IWebHookPayloadProcessor webHookPayloadProcessor,
                                 IWebSocketSender webSocketSender,
-                                IWebHookSubscriptionsProvider webHookSubscriptionsProvider)
+                                IWebHookSubscriptionsProvider webHookSubscriptionsProvider,
+                                 IMessagePublisher messagePublisher)
 
         {
             _repository = repository;
@@ -57,6 +61,7 @@ namespace ParkingApp2Server.Controllers
             _webHookPayloadProcessor = webHookPayloadProcessor;
             _webSocketSender = webSocketSender;
             _webHookSubscriptionsProvider = webHookSubscriptionsProvider;
+            _messagePublisher = messagePublisher;
         }
 
         [HttpGet("/days")]
@@ -220,11 +225,16 @@ namespace ParkingApp2Server.Controllers
             var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
             if (subscriptions.Count > 0)
             {
-                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                await _messagePublisher.PublishAsync(new WebHookMessage
                 {
-                    Data = message
-                }));
-            }            
+                    CorrelationId = Guid.NewGuid(),
+                    Value = new WebHookPayload
+                    {
+                        Data = message
+                    },
+                    WebHookSubscriptions = subscriptions
+                });                
+            }
 
             return NoContent();
         }
@@ -272,10 +282,15 @@ namespace ParkingApp2Server.Controllers
             var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
             if (subscriptions.Count > 0)
             {
-                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                await _messagePublisher.PublishAsync(new WebHookMessage
                 {
-                    Data = message
-                }));
+                    CorrelationId = Guid.NewGuid(),
+                    Value = new WebHookPayload
+                    {
+                        Data = message
+                    },
+                    WebHookSubscriptions = subscriptions
+                });
             }
 
 
@@ -312,10 +327,15 @@ namespace ParkingApp2Server.Controllers
             var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
             if (subscriptions.Count > 0)
             {
-                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                await _messagePublisher.PublishAsync(new WebHookMessage
                 {
-                    Data = message
-                }));
+                    CorrelationId = Guid.NewGuid(),
+                    Value = new WebHookPayload
+                    {
+                        Data = message
+                    },
+                    WebHookSubscriptions = subscriptions
+                });
             }
 
             return NoContent();
@@ -363,10 +383,15 @@ namespace ParkingApp2Server.Controllers
             var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
             if (subscriptions.Count > 0)
             {
-                _ = Task.Run(() => _webHookPayloadProcessor.SendWebHookAsync(subscriptions, new WebHookPayload
+                await _messagePublisher.PublishAsync(new WebHookMessage
                 {
-                    Data = message
-                }));
+                    CorrelationId = Guid.NewGuid(),
+                    Value = new WebHookPayload
+                    {
+                        Data = message
+                    },
+                    WebHookSubscriptions = subscriptions
+                });
             }
 
             return NoContent();

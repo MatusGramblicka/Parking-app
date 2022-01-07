@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Repository\Repository.csproj" />
+    <ProjectReference Include="..\SlimBus.Client\SlimBus.Client.csproj" />
     <ProjectReference Include="..\WebHooks\WebHooks.csproj" />
     <ProjectReference Include="..\WebSocket\WebSocket.csproj" />
   </ItemGroup>

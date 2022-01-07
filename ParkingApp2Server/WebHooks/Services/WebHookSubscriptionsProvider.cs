@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WebHooks.Contracts;
-using WebHooks.Utils;
 
 namespace WebHooks.Services
 {

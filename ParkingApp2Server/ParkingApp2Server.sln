@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebHooks", "WebHooks\WebHoo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSocket", "WebSocket\WebSocket.csproj", "{EAD41B7A-3A77-47CA-BCCE-D890CF16BAD7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimBus.Client", "SlimBus.Client\SlimBus.Client.csproj", "{46A7958E-EE70-4AB5-B051-3AC8E6270419}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Utils", "Common.Utils\Common.Utils.csproj", "{151768DA-F34C-406B-89D7-44A1A63B0900}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{EAD41B7A-3A77-47CA-BCCE-D890CF16BAD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAD41B7A-3A77-47CA-BCCE-D890CF16BAD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAD41B7A-3A77-47CA-BCCE-D890CF16BAD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46A7958E-EE70-4AB5-B051-3AC8E6270419}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46A7958E-EE70-4AB5-B051-3AC8E6270419}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46A7958E-EE70-4AB5-B051-3AC8E6270419}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46A7958E-EE70-4AB5-B051-3AC8E6270419}.Release|Any CPU.Build.0 = Release|Any CPU
+		{151768DA-F34C-406B-89D7-44A1A63B0900}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{151768DA-F34C-406B-89D7-44A1A63B0900}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{151768DA-F34C-406B-89D7-44A1A63B0900}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{151768DA-F34C-406B-89D7-44A1A63B0900}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
