@@ -13,6 +13,9 @@ using Microsoft.OpenApi.Models;
 using ParkingApp2Server.Extensions;
 using ParkingApp2Server.Middleware.WebSocket;
 using ParkingApp2Server.Services;
+using SlimBus.Client;
+using SlimMessageBus;
+using SlimMessageBus.Host.DependencyResolver;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -90,6 +93,25 @@ namespace ParkingApp2Server
             services.AddScoped<IWebHookSubscriptionsProvider, WebHookSubscriptionsProvider>();
 
             services.AddScoped<IWebSocketSender, WebSocketSender>();
+
+            ConfigureMessageBus(services);
+            services.AddSingleton<WebHookMessageEventsBusAdapter>();
+        }
+
+        public void ConfigureMessageBus(IServiceCollection services)
+        {
+            services.AddSingleton<IMessagePublisher, MessageBusAdapter>();
+            services.AddSingleton(BuildSlimMessageBus);
+        }
+
+        private IMessageBus BuildSlimMessageBus(IServiceProvider serviceProvider)
+        {
+            var builder = MessageBusBuildExtensions
+                .CreateMemoryMessageBus()
+                .WithDependencyResolver(new LookupDependencyResolver(serviceProvider.GetRequiredService))
+                .AddProducer<WebHookMessage>("webhook")
+                .AddConsumer<WebHookMessage, WebHookMessageEventsBusAdapter>("webhook");
+            return builder.Build();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -98,7 +120,6 @@ namespace ParkingApp2Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                //app.UseWebAssemblyDebugging();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkingApp2Server v1"));
             }
@@ -144,8 +165,7 @@ namespace ParkingApp2Server
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
-                //endpoints.MapRazorPages();
+                endpoints.MapControllers();               
                 //endpoints.MapFallbackToFile("index.html");
             });
         }

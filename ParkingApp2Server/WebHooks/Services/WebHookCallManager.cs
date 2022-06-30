@@ -1,5 +1,5 @@
-﻿using Entities.Enums;
-using Entities.Models;
+﻿using Common.Utils.Utils;
+using Entities.Enums;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Timeout;
@@ -7,7 +7,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using WebHooks.Contracts;
-using WebHooks.Utils;
 
 namespace WebHooks.Services
 {
