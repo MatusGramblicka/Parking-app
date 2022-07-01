@@ -1,4 +1,4 @@
-﻿using Entities.DTO;
+using Entities.DTO;
 using Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -32,13 +32,13 @@ namespace BlazorProducts.Client.HttpRepository
             return person;
         }
 
-        public async Task CreateWebhook(WebHookSubscriptionForCreationDto webhook) 
+        public async Task CreateWebhook(WebHookSubscriptionForCreationDto webhook)
             => await _client.PostAsJsonAsync("webhooks", webhook);
 
-        public async Task DeleteWebhook(Guid webhookId) 
+        public async Task DeleteWebhook(Guid webhookId)
             => await _client.DeleteAsync(Path.Combine("webhooks", webhookId.ToString()));
 
-        public async Task UpdateWebhook(Guid webhookId, WebHookSubscriptionForUpdateDto webhook) 
+        public async Task UpdateWebhook(Guid webhookId, WebHookSubscriptionForUpdateDto webhook)
             => await _client.PutAsJsonAsync(Path.Combine("webhooks",
                 webhookId.ToString()), webhook);
 

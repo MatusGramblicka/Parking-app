@@ -34,7 +34,6 @@ namespace ParkingApp2Server.Controllers
         private readonly RepositoryContext _context;
         private readonly PriviledgedUsersConfiguration _priviledgedUsersSettings;
         private readonly UserManager<User> _userManager;
-        private readonly IWebSocketConnectionsService _webSocketConnectionsService;
         private readonly IWebHookPayloadProcessor _webHookPayloadProcessor;
         private readonly IWebSocketSender _webSocketSender;
         private readonly IWebHookSubscriptionsProvider _webHookSubscriptionsProvider;
@@ -42,14 +41,13 @@ namespace ParkingApp2Server.Controllers
 
         public ParkingController(IRepositoryManager repository,
                                 IMapper mapper,
-                                RepositoryContext context, 
+                                RepositoryContext context,
                                 IOptions<PriviledgedUsersConfiguration> priviledgedUsersSettings,
                                 UserManager<User> userManager,
-                                IWebSocketConnectionsService webSocketConnectionsService,
                                 IWebHookPayloadProcessor webHookPayloadProcessor,
                                 IWebSocketSender webSocketSender,
                                 IWebHookSubscriptionsProvider webHookSubscriptionsProvider,
-                                 IMessagePublisher messagePublisher)
+                                IMessagePublisher messagePublisher)
 
         {
             _repository = repository;
@@ -57,7 +55,6 @@ namespace ParkingApp2Server.Controllers
             _context = context;
             _priviledgedUsersSettings = priviledgedUsersSettings.Value;
             _userManager = userManager;
-            _webSocketConnectionsService = webSocketConnectionsService;
             _webHookPayloadProcessor = webHookPayloadProcessor;
             _webSocketSender = webSocketSender;
             _webHookSubscriptionsProvider = webHookSubscriptionsProvider;
@@ -92,7 +89,7 @@ namespace ParkingApp2Server.Controllers
             }).ToList();
 
             return Ok(daysWithTenants);
-        }        
+        }
 
         [HttpGet("/tenantsWithDays")]
         public ActionResult<List<TenantWithDay>> GetTenantsWithTheirDays()
@@ -125,7 +122,7 @@ namespace ParkingApp2Server.Controllers
             var days = context.SelectMany(s => s.Days.Select(t => t.DayId)).ToList();
 
             return Ok(days);
-        }    
+        }
 
         [HttpGet("day/{dayId}/tenants")]
         public async Task<ActionResult<List<string>>> GetTenantsOfDay([FromRoute] string dayId)
@@ -193,27 +190,27 @@ namespace ParkingApp2Server.Controllers
             {
                 return NotFound();
             }
-            
+
             var contextTenants = _context.Days
                                         .Where(z => z.DayId == tenantDay.DayId)
                                         .Include(a => a.Tenants)
-                                        .SelectMany(s => s.Tenants.Select(t=>t.TenantId))
-                                        .ToList();          
+                                        .SelectMany(s => s.Tenants.Select(t => t.TenantId))
+                                        .ToList();
 
             if (contextTenants.Count >= _priviledgedUsersSettings.MaxCount)
-                return BadRequest();            
+                return BadRequest();
 
             var contextDays = _context.Tenants
                                     .Where(z => z.TenantId == tenantDay.TenantId)
-                                    .Include(a => a.Days)                
-                                    .SelectMany(s => s.Days.Select(d=>d.DayId)).ToList();
+                                    .Include(a => a.Days)
+                                    .SelectMany(s => s.Days.Select(d => d.DayId)).ToList();
 
             if (contextDays.Contains(tenantDay.DayId))
                 return BadRequest();
 
             day.Tenants.Add(tenant);
-            await _repository.SaveAsync();           
-            
+            await _repository.SaveAsync();
+
             var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
                 Message = WebSocketMessage.ParkingPlaceChange.ToString(),
@@ -221,7 +218,7 @@ namespace ParkingApp2Server.Controllers
             });
 
             await _webSocketSender.SendWebSocketMessage(message);
-
+            
             var subscriptions = await _webHookSubscriptionsProvider.GetSubscriptionsAsync(new CancellationToken());
             if (subscriptions.Count > 0)
             {
@@ -233,7 +230,7 @@ namespace ParkingApp2Server.Controllers
                         Data = message
                     },
                     WebHookSubscriptions = subscriptions
-                });                
+                });
             }
 
             return NoContent();
@@ -314,7 +311,7 @@ namespace ParkingApp2Server.Controllers
                 day.Tenants.Remove(tenant);
             }
 
-            await _context.SaveChangesAsync();            
+            await _context.SaveChangesAsync();
 
             var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
@@ -371,7 +368,7 @@ namespace ParkingApp2Server.Controllers
 
             day.Tenants.Remove(tenantToRemove);
             await _context.SaveChangesAsync();
-                      
+
             var message = JsonConvert.SerializeObject(new WebSocketMessageDayChange
             {
                 Message = WebSocketMessage.ParkingPlaceChange.ToString(),

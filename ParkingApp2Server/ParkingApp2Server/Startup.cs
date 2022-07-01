@@ -36,8 +36,8 @@ namespace ParkingApp2Server
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-        }  
-     
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureCors();
@@ -72,7 +72,7 @@ namespace ParkingApp2Server
             services.Configure<JwtConfiguration>(Configuration.GetSection("JWTSettings"));
             services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-            services.Configure<PriviledgedUsersConfiguration>(Configuration.GetSection("PriviledgedUsers"));            
+            services.Configure<PriviledgedUsersConfiguration>(Configuration.GetSection("PriviledgedUsers"));
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -151,7 +151,7 @@ namespace ParkingApp2Server
                 KeepAliveInterval = TimeSpan.FromSeconds(30)
             }).MapWebSocketConnections("/socket", webSocketConnectionsOptions);
 
-            app.UseStaticFiles();           
+            app.UseStaticFiles();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
@@ -165,7 +165,7 @@ namespace ParkingApp2Server
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();               
+                endpoints.MapControllers();
                 //endpoints.MapFallbackToFile("index.html");
             });
         }

@@ -30,7 +30,7 @@ namespace ParkingApp2Server.Controllers
             var webHookSubscriptionsFromDB = await _repository.WebHook.GetAllWebHookSubscriptionsAsync(trackChanges: false);
             var webHookSubscriptions = _mapper.Map<IEnumerable<WebHookSubscriptionDto>>(webHookSubscriptionsFromDB);
 
-            return Ok(webHookSubscriptions);         
+            return Ok(webHookSubscriptions);
         }
 
         [HttpGet("{id}", Name = "WebHookSubscriptionById")]
@@ -74,7 +74,7 @@ namespace ParkingApp2Server.Controllers
             await _repository.SaveAsync();
 
             var webHookSubscriptionToReturn = _mapper.Map<WebHookSubscriptionDto>(webHookSubscription);
-           
+
             return CreatedAtRoute("WebHookSubscriptionById", new { id = webHookSubscriptionToReturn.Id }, webHookSubscriptionToReturn);
         }
 

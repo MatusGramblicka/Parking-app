@@ -1,6 +1,6 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using WebSocket.Middlewares;
 
 namespace ParkingApp2Server.Middleware.WebSocket
