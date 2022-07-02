@@ -58,10 +58,10 @@ namespace BlazorProducts.Client.Pages
 			UsersList = await UsersHttpRepository.GetUsers();
 
 			Logger.LogInformation(JsonConvert.SerializeObject(UsersList));
-		}	
+		}
 
 		private async Task BookAllDaysForTenant(UserLite user)
-        {
+		{
 			if (user.Priviledged)
 			{
 				// How many users are priviledged ones?				
@@ -101,7 +101,7 @@ namespace BlazorProducts.Client.Pages
 		{
 			await UsersHttpRepository.DeleteUser(user);
 			await GetUsers();
-		}		
+		}
 
 		public void Dispose() => Interceptor.DisposeEvent();
 	}

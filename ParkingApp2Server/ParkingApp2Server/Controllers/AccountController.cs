@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ParkingApp2Server.Controllers
 {
-    [Route("api/account")]
+	[Route("api/account")]
 	[ApiController]
 	public class AccountController : Controller
 	{
@@ -50,7 +50,7 @@ namespace ParkingApp2Server.Controllers
 
 			await _userManager.AddToRoleAsync(user, "Viewer");
 
-			var tenant = new Tenant { TenantId = user.Email};
+			var tenant = new Tenant { TenantId = user.Email };
 			_repository.Tenant.CreateTenant(tenant);
 			await _repository.SaveAsync();
 
@@ -73,7 +73,7 @@ namespace ParkingApp2Server.Controllers
 			}
 
 			var token = await _authenticationService.GetToken(user);
-			
+
 			//await _userManager.AddToRoleAsync(user, "Administrator");
 
 			user.RefreshToken = _authenticationService.GenerateRefreshToken();

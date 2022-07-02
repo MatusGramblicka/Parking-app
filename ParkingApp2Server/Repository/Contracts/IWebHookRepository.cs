@@ -7,7 +7,7 @@ namespace Repository.Contracts
 {
     public interface IWebHookRepository
     {
-        Task<IEnumerable<WebHookSubscription>> GetAllWebHookSubscriptionsAsync(bool trackChanges);        
+        Task<IEnumerable<WebHookSubscription>> GetAllWebHookSubscriptionsAsync(bool trackChanges);
         Task<WebHookSubscription> GetWebHookSubscriptionAsync(Guid webHookId, bool trackChanges);
         void CreateWebHookSubscription(WebHookSubscription webHook);
         void DeleteWebHookSubscription(WebHookSubscription webHook);

@@ -1,6 +1,6 @@
-﻿using Entities.Models;
+﻿using System.Threading.Tasks;
+using Entities.Models;
 using Entities.RequestFeatures;
-using System.Threading.Tasks;
 
 namespace Repository.Contracts
 {

@@ -20,7 +20,7 @@ namespace Entities.Models
         public string SignatureHeaderName { get; set; }
         //public Dictionary<string, string> Headers { get; set; }
         public int MaxSendAttemptCount { get; set; }
-        public bool IsActive { get; set; }       
-        public FailureHandlingStrategy FailureHandlingStrategyFlags { get; set; }        
+        public bool IsActive { get; set; }
+        public FailureHandlingStrategy FailureHandlingStrategyFlags { get; set; }
     }
 }

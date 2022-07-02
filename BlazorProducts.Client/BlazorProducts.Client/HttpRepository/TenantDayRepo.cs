@@ -54,13 +54,13 @@ namespace BlazorProducts.Client.HttpRepository
             => await _client.PutAsJsonAsync("parking/tenant/free", tenant);
 
         public async Task BookAllDaysFortenant(TenantSingle tenantSingle)
-        {            
+        {
             await _client.PutAsJsonAsync("parking/tenant/book/all", tenantSingle);
         }
 
         public async Task RemoveAllBookedDaysFromUser(TenantSingle tenantSingle)
         {
             await _client.PutAsJsonAsync("parking/tenant/free/all", tenantSingle);
-        }        
+        }
     }
 }

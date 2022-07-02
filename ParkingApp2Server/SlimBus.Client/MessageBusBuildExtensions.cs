@@ -15,7 +15,7 @@ namespace SlimBus.Client
                     // Do not serialize the domain events and rather pass the same instance across handlers (faster 
                     EnableMessageSerialization = false
                 });
-            //.WithSerializer(new JsonMessageSerializer()); // no serializer  needed
+                //.WithSerializer(new JsonMessageSerializer()); // no serializer  needed
         }
 
         public static MessageBusBuilder AddProducer<TMessage>(this MessageBusBuilder builder,

@@ -1,27 +1,38 @@
-﻿using System.Net.WebSockets;
+﻿using System;
+using System.IO;
+using System.Net.WebSockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using WebSocket.Contracts;
 
 namespace WebSocket.Infrastructure
 {
     public class WebSocketConnection
     {
+        #region Fields
         private readonly int _receivePayloadBufferSize;
         private readonly int? _sendSegmentSize;
 
         private readonly System.Net.WebSockets.WebSocket _webSocket;
         private readonly ITextWebSocketSubprotocol _textSubProtocol;
+        #endregion
 
+        #region Properties
         public Guid Id { get; } = Guid.NewGuid();
 
         public WebSocketCloseStatus? CloseStatus { get; private set; } = null;
 
         public string CloseStatusDescription { get; private set; } = null;
+        #endregion
 
+        #region Events
         public event EventHandler<string> ReceiveText;
 
         public event EventHandler<byte[]> ReceiveBinary;
+        #endregion
 
+        #region Constructor
         public WebSocketConnection(System.Net.WebSockets.WebSocket webSocket, ITextWebSocketSubprotocol textSubProtocol, int? sendSegmentSize, int receivePayloadBufferSize)
         {
             _webSocket = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
@@ -29,7 +40,9 @@ namespace WebSocket.Infrastructure
             _sendSegmentSize = sendSegmentSize;
             _receivePayloadBufferSize = receivePayloadBufferSize;
         }
+        #endregion
 
+        #region Methods
         public Task SendAsync(string message, CancellationToken cancellationToken)
         {
             return _textSubProtocol.SendAsync(message, SendTextMessageBytesAsync, cancellationToken);
@@ -101,7 +114,7 @@ namespace WebSocket.Infrastructure
                 }
             }
         }
-        
+
         private static WebSocketMessageFlags GetMessageFlags(bool endOfMessage, bool disableCompression)
         {
             WebSocketMessageFlags messageFlags = WebSocketMessageFlags.None;
@@ -157,5 +170,6 @@ namespace WebSocket.Infrastructure
         {
             ReceiveBinary?.Invoke(this, webSocketMessage);
         }
+        #endregion
     }
 }

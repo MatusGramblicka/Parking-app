@@ -1,4 +1,8 @@
-﻿namespace WebSocket.Contracts
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace WebSocket.Contracts
 {
     public interface ITextWebSocketSubprotocol
     {
