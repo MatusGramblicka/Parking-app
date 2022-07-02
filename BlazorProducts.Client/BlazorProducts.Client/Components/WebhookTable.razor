@@ -1,17 +1,17 @@
-﻿@if (Webhooks.Any())
+@if (Webhooks.Any())
 {
     <table class="table">
         <thead>
-            <tr>               
-                <th scope="col">WebhookUri</th>
-                <th scope="col">SigningSecret</th>
-                <th scope="col">SignatureHeaderName</th>
-                <th scope="col">Delete</th>
-            </tr>
+        <tr>               
+            <th scope="col">WebhookUri</th>
+            <th scope="col">SigningSecret</th>
+            <th scope="col">SignatureHeaderName</th>
+            <th scope="col">Delete</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var webhook in Webhooks)
-            {
+        @foreach (var webhook in Webhooks)
+        {
             <tr>                
                 <td class="align-middle">                    
                     @webhook.WebHookUri                    
@@ -29,7 +29,7 @@
                     </button>
                 </td>
             </tr>
-            }
+        }
         </tbody>
     </table>
     <Confirmation BodyMessage="Do you want to delete this webhook?"
@@ -37,17 +37,17 @@
 }
 else
 {
-<table class="table">
-    <thead>
+    <table class="table">
+        <thead>
         <tr>
             <th scope="col">WebhookUri</th>
             <th scope="col">SigningSecret</th>
             <th scope="col">SignatureHeaderName</th>
             <th scope="col">Delete</th>
         </tr>
-    </thead>    
-</table>
-<span>
-    Loading webhooks...
-</span>
+        </thead>    
+    </table>
+    <span>
+        Loading webhooks...
+    </span>
 }

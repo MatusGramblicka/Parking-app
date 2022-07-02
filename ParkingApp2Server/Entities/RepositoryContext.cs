@@ -8,17 +8,17 @@ namespace Entities
     public class RepositoryContext : IdentityDbContext<User>
     {
         public RepositoryContext(DbContextOptions options)
-        : base(options)
+            : base(options)
         {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);      
+            base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new DayConfiguration());
             modelBuilder.ApplyConfiguration(new TenantConfiguration());
-            modelBuilder.ApplyConfiguration(new RoleConfiguration());            
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
         }
 
         public DbSet<Day> Days { get; set; }

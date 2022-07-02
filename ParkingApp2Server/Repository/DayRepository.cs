@@ -17,16 +17,16 @@ namespace Repository
         }
 
         public async Task<IEnumerable<Day>> GetAllDaysAsync(bool trackChanges) =>
-           await FindAll(trackChanges)
-           .OrderBy(c => c.DayId)
-           .ToListAsync();
+            await FindAll(trackChanges)
+                .OrderBy(c => c.DayId)
+                .ToListAsync();
 
         public async Task<Day> GetDayAsync(string NameDay, bool trackChanges) =>
             await FindByCondition(c => c.DayId.Equals(NameDay), trackChanges)
-            .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
         public async Task<IEnumerable<Day>> GetByNamesAsync(IEnumerable<string> dayNames, bool trackChanges) =>
             await FindByCondition(x => dayNames.Contains(x.DayId), trackChanges)
-            .ToListAsync();        
+                .ToListAsync();
     }
 }

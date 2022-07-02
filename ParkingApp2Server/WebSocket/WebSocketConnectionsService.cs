@@ -1,4 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using WebSocket.Contracts;
 using WebSocket.Infrastructure;
 
@@ -6,8 +10,11 @@ namespace WebSocket
 {
     public class WebSocketConnectionsService : IWebSocketConnectionsService
     {
+        #region Fields
         private readonly ConcurrentDictionary<Guid, WebSocketConnection> _connections = new ConcurrentDictionary<Guid, WebSocketConnection>();
+        #endregion
 
+        #region Methods
         public void AddConnection(WebSocketConnection connection)
         {
             _connections.TryAdd(connection.Id, connection);
@@ -30,5 +37,6 @@ namespace WebSocket
 
             return Task.WhenAll(connectionsTasks);
         }
+        #endregion
     }
 }

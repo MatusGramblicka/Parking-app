@@ -1,5 +1,6 @@
 ﻿using Common.Utils.Utils;
 using Entities.Enums;
+using Entities.Models;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Timeout;

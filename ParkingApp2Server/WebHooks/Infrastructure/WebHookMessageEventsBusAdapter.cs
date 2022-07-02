@@ -20,6 +20,5 @@ namespace WebHooks.Infrastructure
                 _webHookPayloadProcessor.SendWebHookAsync(message.WebHookSubscriptions, message.Value);
             });
         }
-
     }
 }

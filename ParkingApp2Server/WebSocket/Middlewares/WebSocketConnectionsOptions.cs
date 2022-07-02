@@ -1,4 +1,5 @@
-﻿using WebSocket.Contracts;
+﻿using System.Collections.Generic;
+using WebSocket.Contracts;
 
 namespace WebSocket.Middlewares
 {

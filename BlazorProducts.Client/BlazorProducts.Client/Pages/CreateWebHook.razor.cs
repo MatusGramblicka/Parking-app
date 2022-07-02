@@ -1,4 +1,4 @@
-﻿using Blazored.Toast.Services;
+using Blazored.Toast.Services;
 using BlazorProducts.Client.HttpInterceptor;
 using BlazorProducts.Client.HttpRepository;
 using Entities.DTO;
@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace BlazorProducts.Client.Pages
 {
-    public partial class CreateWebHook
-    {
+	public partial class CreateWebHook
+	{
 		private WebHookSubscriptionForCreationDto _webhook = new WebHookSubscriptionForCreationDto();
 		private EditContext _editContext;
 		private bool formInvalid = true;

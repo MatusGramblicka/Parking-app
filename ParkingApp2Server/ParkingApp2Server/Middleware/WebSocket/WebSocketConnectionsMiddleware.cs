@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using WebSocket.Contracts;
 using WebSocket.Infrastructure;
 using WebSocket.Middlewares;
@@ -10,16 +10,21 @@ using WebSocket.Middlewares;
 namespace ParkingApp2Server.Middleware.WebSocket
 {
     public class WebSocketConnectionsMiddleware
-    {      
+    {
+        #region Fields
         private readonly WebSocketConnectionsOptions _options;
         private readonly IWebSocketConnectionsService _connectionsService;
-    
+        #endregion
+
+        #region Constructor
         public WebSocketConnectionsMiddleware(RequestDelegate next, WebSocketConnectionsOptions options, IWebSocketConnectionsService connectionsService)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _connectionsService = connectionsService ?? throw new ArgumentNullException(nameof(connectionsService));
         }
-       
+        #endregion
+
+        #region Methods
         public async Task Invoke(HttpContext context)
         {
             if (context.WebSockets.IsWebSocketRequest)
@@ -27,7 +32,7 @@ namespace ParkingApp2Server.Middleware.WebSocket
                 if (ValidateOrigin(context))
                 {
                     ITextWebSocketSubprotocol textSubProtocol = NegotiateSubProtocol(context.WebSockets.WebSocketRequestedProtocols);
-
+                     
                     System.Net.WebSockets.WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync(new WebSocketAcceptContext
                     {
                         SubProtocol = textSubProtocol?.SubProtocol,
@@ -79,5 +84,6 @@ namespace ParkingApp2Server.Middleware.WebSocket
 
             return subProtocol;
         }
+        #endregion
     }
 }

@@ -1,4 +1,7 @@
-﻿using WebSocket.Infrastructure;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using WebSocket.Infrastructure;
 
 namespace WebSocket.Contracts
 {
