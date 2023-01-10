@@ -96,6 +96,8 @@ namespace ParkingApp2Server
 
             ConfigureMessageBus(services);
             services.AddSingleton<WebHookMessageEventsBusAdapter>();
+
+            services.AddRazorPages();
         }
 
         public void ConfigureMessageBus(IServiceCollection services)
@@ -120,6 +122,7 @@ namespace ParkingApp2Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseWebAssemblyDebugging();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkingApp2Server v1"));
             }
@@ -151,6 +154,7 @@ namespace ParkingApp2Server
                 KeepAliveInterval = TimeSpan.FromSeconds(30)
             }).MapWebSocketConnections("/socket", webSocketConnectionsOptions);
 
+            app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -166,7 +170,8 @@ namespace ParkingApp2Server
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                //endpoints.MapFallbackToFile("index.html");
+                endpoints.MapRazorPages();
+                endpoints.MapFallbackToFile("index.html");
             });
         }
     }
