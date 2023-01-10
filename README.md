@@ -4,4 +4,3 @@ Parking app for kistler
 
 Deployed app for testing purposes:
 https://polar-dawn-13747.herokuapp.com/
-
