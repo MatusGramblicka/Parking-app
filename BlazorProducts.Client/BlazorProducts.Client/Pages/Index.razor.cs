@@ -236,9 +236,8 @@ public partial class Index
         var buffer = new ArraySegment<byte>(new byte[1024]);
         while (!disposalTokenSource.IsCancellationRequested)
         {
-            // Note that the received block might only be part of a larger message. If this applies in your scenario,
-            // check the received.EndOfMessage and consider buffering the blocks until that property is true.
-            // Or use a higher-level library such as SignalR.
+            // Note that the received block might only be part of a larger message. If this applies in your scenario, check the received.EndOfMessage
+            // and consider buffering the blocks until that property is true. Or use a higher-level library such as SignalR.
             var received = await _webSocket.ReceiveAsync(buffer, disposalTokenSource.Token);
             var receivedAsText = Encoding.UTF8.GetString(buffer.Array, 0, received.Count);
 
@@ -270,6 +269,6 @@ public partial class Index
         Interceptor.DisposeEvent();
 
         disposalTokenSource.Cancel();
-        _ = _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", CancellationToken.None);
+        _ = _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
     }
 }
