@@ -3,36 +3,32 @@ using Entities.DTO;
 using Microsoft.AspNetCore.Components;
 using System.Threading.Tasks;
 
-namespace BlazorProducts.Client.Pages
+namespace BlazorProducts.Client.Pages;
+
+public partial class Login
 {
-    public partial class Login
+    private UserForAuthenticationDto _userForAuthentication = new();
+
+    [Inject] public IAuthenticationService AuthenticationService { get; set; }
+
+    [Inject] public NavigationManager NavigationManager { get; set; }
+
+    public bool ShowAuthError { get; set; }
+    public string Error { get; set; }
+
+    public async Task ExecuteLogin()
     {
-        private UserForAuthenticationDto _userForAuthentication =
-            new UserForAuthenticationDto();
+        ShowAuthError = false;
 
-        [Inject]
-        public IAuthenticationService AuthenticationService { get; set; }
-
-        [Inject]
-        public NavigationManager NavigationManager { get; set; }
-
-        public bool ShowAuthError { get; set; }
-        public string Error { get; set; }
-
-        public async Task ExecuteLogin()
+        var result = await AuthenticationService.Login(_userForAuthentication);
+        if (!result.IsAuthSuccessful)
         {
-            ShowAuthError = false;
-
-            var result = await AuthenticationService.Login(_userForAuthentication);
-            if (!result.IsAuthSuccessful)
-            {
-                Error = result.ErrorMessage;
-                ShowAuthError = true;
-            }
-            else
-            {
-                NavigationManager.NavigateTo("/parking");
-            }
+            Error = result.ErrorMessage;
+            ShowAuthError = true;
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/parking");
         }
     }
 }

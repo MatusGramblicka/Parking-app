@@ -1,12 +1,11 @@
 ﻿using System.Threading.Tasks;
 
-namespace Repository.Contracts
+namespace Repository.Contracts;
+
+public interface IRepositoryManager
 {
-    public interface IRepositoryManager
-    {
-        IDayRepository Day { get; }
-        ITenantRepository Tenant { get; }
-        IWebHookRepository WebHook { get; }
-        Task SaveAsync();
-    }
+    IDayRepository Day { get; }
+    ITenantRepository Tenant { get; }
+    IWebHookRepository WebHook { get; }
+    Task SaveAsync();
 }

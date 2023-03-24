@@ -8,89 +8,95 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ParkingApp2Server.Controllers
+namespace ParkingApp2Server.Controllers;
+
+[Route("api/webhooks")]
+[ApiController]
+[Authorize]
+public class WebHooksController : ControllerBase
 {
-    [Route("api/webhooks")]
-    [ApiController]
-    [Authorize]
-    public class WebHooksController : ControllerBase
+    private readonly IRepositoryManager _repository;
+    private readonly IMapper _mapper;
+
+    public WebHooksController(IRepositoryManager repository, IMapper mapper)
     {
-        private readonly IRepositoryManager _repository;
-        private readonly IMapper _mapper;
+        _repository = repository;
+        _mapper = mapper;
+    }
 
-        public WebHooksController(IRepositoryManager repository, IMapper mapper)
+    [HttpGet]
+    public async Task<ActionResult<List<WebHookSubscription>>> GetSubscriptions()
+    {
+        var webHookSubscriptionsFromDb = await _repository.WebHook.GetAllWebHookSubscriptionsAsync(trackChanges: false);
+        var webHookSubscriptions = _mapper.Map<IEnumerable<WebHookSubscriptionDto>>(webHookSubscriptionsFromDb);
+
+        return Ok(webHookSubscriptions);
+    }
+
+    [HttpGet("{id}", Name = "WebHookSubscriptionById")]
+    public async Task<ActionResult<WebHookSubscription>> GetSubscription([FromRoute] Guid id)
+    {
+        var webHookSubscriptionFromDb = await _repository.WebHook.GetWebHookSubscriptionAsync(id, trackChanges: false);
+        if (webHookSubscriptionFromDb == null)
         {
-            _repository = repository;
-            _mapper = mapper;
+            return NotFound();
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<WebHookSubscription>>> GetSubscriptions()
-        {
-            var webHookSubscriptionsFromDB = await _repository.WebHook.GetAllWebHookSubscriptionsAsync(trackChanges: false);
-            var webHookSubscriptions = _mapper.Map<IEnumerable<WebHookSubscriptionDto>>(webHookSubscriptionsFromDB);
+        var webHookSubscription = _mapper.Map<WebHookSubscriptionDto>(webHookSubscriptionFromDb);
 
-            return Ok(webHookSubscriptions);
+        return Ok(webHookSubscription);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateSubscription(
+        [FromBody] WebHookSubscriptionForCreationDto webHookSubscriptionForCreation)
+    {
+        var webHookSubscription = _mapper.Map<WebHookSubscription>(webHookSubscriptionForCreation);
+
+        _repository.WebHook.CreateWebHookSubscription(webHookSubscription);
+        await _repository.SaveAsync();
+
+        var webHookSubscriptionToReturn = _mapper.Map<WebHookSubscriptionDto>(webHookSubscription);
+
+        return CreatedAtRoute("WebHookSubscriptionById", new {id = webHookSubscriptionToReturn.Id},
+            webHookSubscriptionToReturn);
+    }
+
+    [HttpPut("{webHookSubscriptionId}")]
+    public async Task<IActionResult> UpdateSubscription([FromRoute] Guid webHookSubscriptionId,
+        WebHookSubscriptionForUpdateDto webHookSubscriptionForUpdate)
+    {
+        var webHookSubscriptionFromDb =
+            await _repository.WebHook.GetWebHookSubscriptionAsync(webHookSubscriptionId, trackChanges: true);
+        if (webHookSubscriptionFromDb == null)
+        {
+            return NotFound();
         }
 
-        [HttpGet("{id}", Name = "WebHookSubscriptionById")]
-        public async Task<ActionResult<WebHookSubscription>> GetSubscription([FromRoute] Guid id)
-        {
-            var webHookSubscriptionFromDB = await _repository.WebHook.GetWebHookSubscriptionAsync(id, trackChanges: false);
-            if (webHookSubscriptionFromDB == null)
-            {
-                return NotFound();
-            }
-            var webHookSubscription = _mapper.Map<WebHookSubscriptionDto>(webHookSubscriptionFromDB);
+        var webHookSubscription = _mapper.Map<WebHookSubscription>(webHookSubscriptionForUpdate);
 
-            return Ok(webHookSubscription);
+        _repository.WebHook.CreateWebHookSubscription(webHookSubscription);
+        await _repository.SaveAsync();
+
+        var webHookSubscriptionToReturn = _mapper.Map<WebHookSubscriptionDto>(webHookSubscription);
+
+        return CreatedAtRoute("WebHookSubscriptionById", new {id = webHookSubscriptionToReturn.Id},
+            webHookSubscriptionToReturn);
+    }
+
+    [HttpDelete("{webHookSubscriptionId}")]
+    public async Task<IActionResult> DeleteSubscription([FromRoute] Guid webHookSubscriptionId)
+    {
+        var webHookSubscriptionFromDb =
+            await _repository.WebHook.GetWebHookSubscriptionAsync(webHookSubscriptionId, trackChanges: false);
+        if (webHookSubscriptionFromDb == null)
+        {
+            return NotFound();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateSubscription([FromBody] WebHookSubscriptionForCreationDto webHookSubscriptionForCreation)
-        {
-            var webHookSubscription = _mapper.Map<WebHookSubscription>(webHookSubscriptionForCreation);
+        _repository.WebHook.DeleteWebHookSubscription(webHookSubscriptionFromDb);
+        await _repository.SaveAsync();
 
-            _repository.WebHook.CreateWebHookSubscription(webHookSubscription);
-            await _repository.SaveAsync();
-
-            var webHookSubscriptionToReturn = _mapper.Map<WebHookSubscriptionDto>(webHookSubscription);
-
-            return CreatedAtRoute("WebHookSubscriptionById", new { id = webHookSubscriptionToReturn.Id }, webHookSubscriptionToReturn);
-        }
-
-        [HttpPut("{webHookSubscriptionId}")]
-        public async Task<IActionResult> UpdateSubscription([FromRoute] Guid webHookSubscriptionId, WebHookSubscriptionForUpdateDto webHookSubscriptionForUpdate)
-        {
-            var webHookSubscriptionFromDB = await _repository.WebHook.GetWebHookSubscriptionAsync(webHookSubscriptionId, trackChanges: true);
-            if (webHookSubscriptionFromDB == null)
-            {
-                return NotFound();
-            }
-
-            var webHookSubscription = _mapper.Map<WebHookSubscription>(webHookSubscriptionForUpdate);
-
-            _repository.WebHook.CreateWebHookSubscription(webHookSubscription);
-            await _repository.SaveAsync();
-
-            var webHookSubscriptionToReturn = _mapper.Map<WebHookSubscriptionDto>(webHookSubscription);
-
-            return CreatedAtRoute("WebHookSubscriptionById", new { id = webHookSubscriptionToReturn.Id }, webHookSubscriptionToReturn);
-        }
-
-        [HttpDelete("{webHookSubscriptionId}")]
-        public async Task<IActionResult> DeleteSubscription([FromRoute] Guid webHookSubscriptionId)
-        {
-            var webHookSubscriptionFromDB = await _repository.WebHook.GetWebHookSubscriptionAsync(webHookSubscriptionId, trackChanges: false);
-            if (webHookSubscriptionFromDB == null)
-            {
-                return NotFound();
-            }
-            _repository.WebHook.DeleteWebHookSubscription(webHookSubscriptionFromDB);
-            await _repository.SaveAsync();
-
-            return NoContent();
-        }
-
+        return NoContent();
     }
 }

@@ -3,20 +3,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WebSocket.Infrastructure
+namespace WebSocket.Infrastructure;
+
+public abstract class TextWebSocketSubprotocolBase
 {
-    public abstract class TextWebSocketSubprotocolBase
+    public virtual Task SendAsync(string message, Func<byte[], CancellationToken, Task> sendMessageBytesAsync,
+        CancellationToken cancellationToken)
     {
-        public virtual Task SendAsync(string message, Func<byte[], CancellationToken, Task> sendMessageBytesAsync, CancellationToken cancellationToken)
-        {
-            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+        var messageBytes = Encoding.UTF8.GetBytes(message);
 
-            return sendMessageBytesAsync(messageBytes, cancellationToken);
-        }
+        return sendMessageBytesAsync(messageBytes, cancellationToken);
+    }
 
-        public virtual string Read(string webSocketMessage)
-        {
-            return webSocketMessage;
-        }
+    public virtual string Read(string webSocketMessage)
+    {
+        return webSocketMessage;
     }
 }

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace WebHooks.Contracts
+namespace WebHooks.Contracts;
+
+public interface IWebHookPayloadProcessor
 {
-    public interface IWebHookPayloadProcessor
-    {
-        Task SendWebHookAsync(List<WebHookSubscriptionDto> webHookSubscriptions, WebHookPayload value);
-    }
+    Task SendWebHookAsync(List<WebHookSubscriptionDto> webHookSubscriptions, WebHookPayload value);
 }

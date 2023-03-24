@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace BlazorProducts.Client.HttpInterceptor
+namespace BlazorProducts.Client.HttpInterceptor;
+
+[Serializable]
+internal class HttpResponseException : Exception
 {
-	[Serializable]
-	internal class HttpResponseException : Exception
-	{
-		public HttpResponseException()
-		{
-		}
+    public HttpResponseException()
+    {
+    }
 
-		public HttpResponseException(string message) : base(message)
-		{
-		}
+    public HttpResponseException(string message) : base(message)
+    {
+    }
 
-		public HttpResponseException(string message, Exception innerException)
-			: base(message, innerException)
-		{
-		}
+    public HttpResponseException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
 
-		protected HttpResponseException(SerializationInfo info, StreamingContext context)
-			: base(info, context)
-		{
-		}
-	}
+    protected HttpResponseException(SerializationInfo info, StreamingContext context)
+        : base(info, context)
+    {
+    }
 }

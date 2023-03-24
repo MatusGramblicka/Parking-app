@@ -1,7 +1,6 @@
-﻿namespace WebHooks.Contracts
+﻿namespace WebHooks.Contracts;
+
+public interface IWebHookCallManagerFactory
 {
-    public interface IWebHookCallManagerFactory
-    {
-        IWebHookCallManager GetNew();
-    }
+    IWebHookCallManager GetNew();
 }

@@ -1,7 +1,6 @@
-﻿namespace Entities.Configuration
+﻿namespace Entities.Configuration;
+
+public class WebSocketConfiguration
 {
-    public class WebSocketConfiguration
-    {
-        public string Connection { get; set; }
-    }
+    public string Connection { get; set; }
 }

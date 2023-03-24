@@ -1,7 +1,6 @@
-﻿namespace WebHooks.Contracts
+﻿namespace WebHooks.Contracts;
+
+public class WebHookPayload
 {
-    public class WebHookPayload
-    {
-        public string Data { get; set; }
-    }
+    public string Data { get; set; }
 }

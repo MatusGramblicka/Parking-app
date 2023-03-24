@@ -1,7 +1,6 @@
-﻿namespace Entities.Enums
+﻿namespace Entities.Enums;
+
+public enum WebSocketMessage
 {
-    public enum WebSocketMessage
-    {
-        ParkingPlaceChange = 1
-    }
+    ParkingPlaceChange = 1
 }

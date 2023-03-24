@@ -1,7 +1,6 @@
-﻿namespace Entities.DTO
+﻿namespace Entities.DTO;
+
+public class WebHookSubscriptionForCreationDto : WebHookSubscriptionForManipulationDto
 {
-    public class WebHookSubscriptionForCreationDto : WebHookSubscriptionForManipulationDto
-    {
         
-    }
 }

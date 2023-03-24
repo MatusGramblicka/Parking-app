@@ -1,7 +1,6 @@
-﻿namespace Entities.DTO
+﻿namespace Entities.DTO;
+
+public class TenantSingle
 {
-    public class TenantSingle
-    {
-        public string TenantId { get; set; }
-    }
+    public string TenantId { get; set; }
 }

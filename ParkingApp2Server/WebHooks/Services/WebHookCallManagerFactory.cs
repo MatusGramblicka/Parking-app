@@ -1,22 +1,21 @@
 ﻿using Microsoft.Extensions.Logging;
 using WebHooks.Contracts;
 
-namespace WebHooks.Services
+namespace WebHooks.Services;
+
+public class WebHookCallManagerFactory : IWebHookCallManagerFactory
 {
-    public class WebHookCallManagerFactory : IWebHookCallManagerFactory
+    private readonly ILoggerFactory _loggerFactory;
+    private readonly IWebHookSender _webHookSender;
+
+    public WebHookCallManagerFactory(IWebHookSender webHookSender, ILoggerFactory loggerFactory)
     {
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly IWebHookSender _webHookSender;
+        _webHookSender = webHookSender;
+        _loggerFactory = loggerFactory;
+    }
 
-        public WebHookCallManagerFactory(IWebHookSender webHookSender, ILoggerFactory loggerFactory)
-        {
-            _webHookSender = webHookSender;
-            _loggerFactory = loggerFactory;
-        }
-
-        public IWebHookCallManager GetNew()
-        {
-            return new WebHookCallManager(_webHookSender, _loggerFactory.CreateLogger<WebHookCallManager>());
-        }
+    public IWebHookCallManager GetNew()
+    {
+        return new WebHookCallManager(_webHookSender, _loggerFactory.CreateLogger<WebHookCallManager>());
     }
 }

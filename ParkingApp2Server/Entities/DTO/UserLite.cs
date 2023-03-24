@@ -1,8 +1,7 @@
-﻿namespace Entities.DTO
+﻿namespace Entities.DTO;
+
+public class UserLite
 {
-    public class UserLite
-    {
-        public string Email { get; set; }
-        public bool Priviledged { get; set; }
-    }
+    public string Email { get; set; }
+    public bool Priviledged { get; set; }
 }

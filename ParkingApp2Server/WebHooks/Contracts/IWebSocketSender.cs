@@ -1,10 +1,8 @@
-﻿using Entities.WebSocket;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace WebHooks.Contracts
+namespace WebHooks.Contracts;
+
+public interface IWebSocketSender
 {
-    public interface IWebSocketSender
-    {
-        Task SendWebSocketMessage(string message);
-    }
+    Task SendWebSocketMessage(string message);
 }

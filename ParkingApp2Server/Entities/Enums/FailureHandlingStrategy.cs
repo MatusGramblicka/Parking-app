@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace Entities.Enums
+namespace Entities.Enums;
+
+[Flags]
+public enum FailureHandlingStrategy
 {
-    [Flags]
-    public enum FailureHandlingStrategy
-    {
-        LogFailure = 0,
-        DeactivateSubscription = 1
-    }
+    LogFailure = 0,
+    DeactivateSubscription = 1
 }

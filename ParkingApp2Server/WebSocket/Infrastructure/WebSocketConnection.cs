@@ -6,170 +6,168 @@ using System.Threading;
 using System.Threading.Tasks;
 using WebSocket.Contracts;
 
-namespace WebSocket.Infrastructure
+namespace WebSocket.Infrastructure;
+
+public class WebSocketConnection
 {
-    public class WebSocketConnection
+    private readonly int _receivePayloadBufferSize;
+    private readonly int? _sendSegmentSize;
+
+    private readonly System.Net.WebSockets.WebSocket _webSocket;
+    private readonly ITextWebSocketSubprotocol _textSubProtocol;
+
+    public Guid Id { get; } = Guid.NewGuid();
+
+    public WebSocketCloseStatus? CloseStatus { get; private set; } = null;
+
+    public string CloseStatusDescription { get; private set; } = null;
+
+    public event EventHandler<string> ReceiveText;
+
+    public event EventHandler<byte[]> ReceiveBinary;
+
+    public WebSocketConnection(System.Net.WebSockets.WebSocket webSocket, ITextWebSocketSubprotocol textSubProtocol,
+        int? sendSegmentSize, int receivePayloadBufferSize)
     {
-        #region Fields
-        private readonly int _receivePayloadBufferSize;
-        private readonly int? _sendSegmentSize;
+        _webSocket = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
+        _textSubProtocol = textSubProtocol ?? throw new ArgumentNullException(nameof(textSubProtocol));
+        _sendSegmentSize = sendSegmentSize;
+        _receivePayloadBufferSize = receivePayloadBufferSize;
+    }
 
-        private readonly System.Net.WebSockets.WebSocket _webSocket;
-        private readonly ITextWebSocketSubprotocol _textSubProtocol;
-        #endregion
+    public Task SendAsync(string message, CancellationToken cancellationToken)
+    {
+        return _textSubProtocol.SendAsync(message, SendTextMessageBytesAsync, cancellationToken);
+    }
 
-        #region Properties
-        public Guid Id { get; } = Guid.NewGuid();
+    public Task SendAsync(byte[] message, CancellationToken cancellationToken)
+    {
+        return SendMessageBytesAsync(message, WebSocketMessageType.Binary, cancellationToken: cancellationToken);
+    }
 
-        public WebSocketCloseStatus? CloseStatus { get; private set; } = null;
-
-        public string CloseStatusDescription { get; private set; } = null;
-        #endregion
-
-        #region Events
-        public event EventHandler<string> ReceiveText;
-
-        public event EventHandler<byte[]> ReceiveBinary;
-        #endregion
-
-        #region Constructor
-        public WebSocketConnection(System.Net.WebSockets.WebSocket webSocket, ITextWebSocketSubprotocol textSubProtocol, int? sendSegmentSize, int receivePayloadBufferSize)
+    public async Task ReceiveMessagesUntilCloseAsync()
+    {
+        try
         {
-            _webSocket = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
-            _textSubProtocol = textSubProtocol ?? throw new ArgumentNullException(nameof(textSubProtocol));
-            _sendSegmentSize = sendSegmentSize;
-            _receivePayloadBufferSize = receivePayloadBufferSize;
-        }
-        #endregion
-
-        #region Methods
-        public Task SendAsync(string message, CancellationToken cancellationToken)
-        {
-            return _textSubProtocol.SendAsync(message, SendTextMessageBytesAsync, cancellationToken);
-        }
-
-        public Task SendAsync(byte[] message, CancellationToken cancellationToken)
-        {
-            return SendMessageBytesAsync(message, WebSocketMessageType.Binary, cancellationToken: cancellationToken);
-        }        
-
-        public async Task ReceiveMessagesUntilCloseAsync()
-        {
-            try
+            var receivePayloadBuffer = new byte[_receivePayloadBufferSize];
+            var webSocketReceiveResult =
+                await _webSocket.ReceiveAsync(new ArraySegment<byte>(receivePayloadBuffer), CancellationToken.None);
+            while (webSocketReceiveResult.MessageType != WebSocketMessageType.Close)
             {
-                byte[] receivePayloadBuffer = new byte[_receivePayloadBufferSize];
-                WebSocketReceiveResult webSocketReceiveResult = await _webSocket.ReceiveAsync(new ArraySegment<byte>(receivePayloadBuffer), CancellationToken.None);
-                while (webSocketReceiveResult.MessageType != WebSocketMessageType.Close)
+                var webSocketMessage =
+                    await ReceiveMessagePayloadAsync(webSocketReceiveResult, receivePayloadBuffer);
+                if (webSocketReceiveResult.MessageType == WebSocketMessageType.Binary)
                 {
-                    byte[] webSocketMessage = await ReceiveMessagePayloadAsync(webSocketReceiveResult, receivePayloadBuffer);
-                    if (webSocketReceiveResult.MessageType == WebSocketMessageType.Binary)
-                    {
-                        OnReceiveBinary(webSocketMessage);
-                    }
-                    else
-                    {
-                        OnReceiveText(Encoding.UTF8.GetString(webSocketMessage));
-                    }
-
-                    webSocketReceiveResult = await _webSocket.ReceiveAsync(new ArraySegment<byte>(receivePayloadBuffer), CancellationToken.None);
-                }
-
-                CloseStatus = webSocketReceiveResult.CloseStatus.Value;
-                CloseStatusDescription = webSocketReceiveResult.CloseStatusDescription;
-            }
-            catch (WebSocketException wsex) when (wsex.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
-            { }
-        }
-
-        private Task SendTextMessageBytesAsync(byte[] messageBytes, CancellationToken cancellationToken)
-        {
-            return SendMessageBytesAsync(messageBytes, WebSocketMessageType.Text, cancellationToken: cancellationToken);
-        }
-
-        private async Task SendMessageBytesAsync(byte[] messageBytes, WebSocketMessageType messageType, bool compressMessage = true, CancellationToken cancellationToken = default)
-        {
-            if (_webSocket.State == WebSocketState.Open)
-            {
-                if (_sendSegmentSize.HasValue && (_sendSegmentSize.Value < messageBytes.Length))
-                {
-                    int messageOffset = 0;
-                    int messageBytesToSend = messageBytes.Length;
-
-                    while (messageBytesToSend > 0)
-                    {
-                        int messageSegmentSize = Math.Min(_sendSegmentSize.Value, messageBytesToSend);
-                        ArraySegment<byte> messageSegment = new ArraySegment<byte>(messageBytes, messageOffset, messageSegmentSize);
-
-                        messageOffset += messageSegmentSize;
-                        messageBytesToSend -= messageSegmentSize;
-
-                        await _webSocket.SendAsync(messageSegment, messageType, GetMessageFlags(messageBytesToSend == 0, !compressMessage), cancellationToken);
-                    }
+                    OnReceiveBinary(webSocketMessage);
                 }
                 else
                 {
-                    ArraySegment<byte> messageSegment = new ArraySegment<byte>(messageBytes, 0, messageBytes.Length);
-
-                    await _webSocket.SendAsync(messageSegment, messageType, GetMessageFlags(true, !compressMessage), cancellationToken);
+                    OnReceiveText(Encoding.UTF8.GetString(webSocketMessage));
                 }
+
+                webSocketReceiveResult = await _webSocket.ReceiveAsync(new ArraySegment<byte>(receivePayloadBuffer),
+                    CancellationToken.None);
             }
+
+            CloseStatus = webSocketReceiveResult.CloseStatus.Value;
+            CloseStatusDescription = webSocketReceiveResult.CloseStatusDescription;
         }
-
-        private static WebSocketMessageFlags GetMessageFlags(bool endOfMessage, bool disableCompression)
+        catch (WebSocketException wsex) when (wsex.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
         {
-            WebSocketMessageFlags messageFlags = WebSocketMessageFlags.None;
-
-            if (endOfMessage)
-            {
-                messageFlags |= WebSocketMessageFlags.EndOfMessage;
-            }
-
-            if (disableCompression)
-            {
-                messageFlags |= WebSocketMessageFlags.DisableCompression;
-            }
-
-            return messageFlags;
         }
+    }
 
-        private async Task<byte[]> ReceiveMessagePayloadAsync(WebSocketReceiveResult webSocketReceiveResult, byte[] receivePayloadBuffer)
+    private Task SendTextMessageBytesAsync(byte[] messageBytes, CancellationToken cancellationToken)
+    {
+        return SendMessageBytesAsync(messageBytes, WebSocketMessageType.Text, cancellationToken: cancellationToken);
+    }
+
+    private async Task SendMessageBytesAsync(byte[] messageBytes, WebSocketMessageType messageType,
+        bool compressMessage = true, CancellationToken cancellationToken = default)
+    {
+        if (_webSocket.State == WebSocketState.Open)
         {
-            byte[] messagePayload = null;
-
-            if (webSocketReceiveResult.EndOfMessage)
+            if (_sendSegmentSize.HasValue && _sendSegmentSize.Value < messageBytes.Length)
             {
-                messagePayload = new byte[webSocketReceiveResult.Count];
-                Array.Copy(receivePayloadBuffer, messagePayload, webSocketReceiveResult.Count);
+                var messageOffset = 0;
+                var messageBytesToSend = messageBytes.Length;
+
+                while (messageBytesToSend > 0)
+                {
+                    var messageSegmentSize = Math.Min(_sendSegmentSize.Value, messageBytesToSend);
+                    var messageSegment =
+                        new ArraySegment<byte>(messageBytes, messageOffset, messageSegmentSize);
+
+                    messageOffset += messageSegmentSize;
+                    messageBytesToSend -= messageSegmentSize;
+
+                    await _webSocket.SendAsync(messageSegment, messageType,
+                        GetMessageFlags(messageBytesToSend == 0, !compressMessage), cancellationToken);
+                }
             }
             else
             {
-                using (MemoryStream messagePayloadStream = new MemoryStream())
-                {
-                    messagePayloadStream.Write(receivePayloadBuffer, 0, webSocketReceiveResult.Count);
-                    while (!webSocketReceiveResult.EndOfMessage)
-                    {
-                        webSocketReceiveResult = await _webSocket.ReceiveAsync(new ArraySegment<byte>(receivePayloadBuffer), CancellationToken.None);
-                        messagePayloadStream.Write(receivePayloadBuffer, 0, webSocketReceiveResult.Count);
-                    }
+                var messageSegment = new ArraySegment<byte>(messageBytes, 0, messageBytes.Length);
 
-                    messagePayload = messagePayloadStream.ToArray();
-                }
+                await _webSocket.SendAsync(messageSegment, messageType, GetMessageFlags(true, !compressMessage),
+                    cancellationToken);
+            }
+        }
+    }
+
+    private static WebSocketMessageFlags GetMessageFlags(bool endOfMessage, bool disableCompression)
+    {
+        var messageFlags = WebSocketMessageFlags.None;
+
+        if (endOfMessage)
+        {
+            messageFlags |= WebSocketMessageFlags.EndOfMessage;
+        }
+
+        if (disableCompression)
+        {
+            messageFlags |= WebSocketMessageFlags.DisableCompression;
+        }
+
+        return messageFlags;
+    }
+
+    private async Task<byte[]> ReceiveMessagePayloadAsync(WebSocketReceiveResult webSocketReceiveResult,
+        byte[] receivePayloadBuffer)
+    {
+        byte[] messagePayload = null;
+
+        if (webSocketReceiveResult.EndOfMessage)
+        {
+            messagePayload = new byte[webSocketReceiveResult.Count];
+            Array.Copy(receivePayloadBuffer, messagePayload, webSocketReceiveResult.Count);
+        }
+        else
+        {
+            using var messagePayloadStream = new MemoryStream();
+            messagePayloadStream.Write(receivePayloadBuffer, 0, webSocketReceiveResult.Count);
+            while (!webSocketReceiveResult.EndOfMessage)
+            {
+                webSocketReceiveResult = await _webSocket.ReceiveAsync(new ArraySegment<byte>(receivePayloadBuffer),
+                    CancellationToken.None);
+                messagePayloadStream.Write(receivePayloadBuffer, 0, webSocketReceiveResult.Count);
             }
 
-            return messagePayload;
+            messagePayload = messagePayloadStream.ToArray();
         }
 
-        private void OnReceiveText(string webSocketMessage)
-        {
-            string message = _textSubProtocol.Read(webSocketMessage);
+        return messagePayload;
+    }
 
-            ReceiveText?.Invoke(this, message);
-        }
+    private void OnReceiveText(string webSocketMessage)
+    {
+        var message = _textSubProtocol.Read(webSocketMessage);
 
-        private void OnReceiveBinary(byte[] webSocketMessage)
-        {
-            ReceiveBinary?.Invoke(this, webSocketMessage);
-        }
-        #endregion
+        ReceiveText?.Invoke(this, message);
+    }
+
+    private void OnReceiveBinary(byte[] webSocketMessage)
+    {
+        ReceiveBinary?.Invoke(this, webSocketMessage);
     }
 }
