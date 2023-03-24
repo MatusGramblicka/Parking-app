@@ -28,7 +28,7 @@
 
     <div style="float: left">
         <div>Your booked days in this calendar are: </div>
-        @foreach (var tenantsDays in tenantsDayActualSelection)
+        @foreach (var tenantsDays in TenantsDayActualSelection)
         {
         <div>
             @tenantsDays
@@ -53,12 +53,12 @@
                 @for (int i = 0; i < 7; i++)
                 {
                 <td class="align-middle" style="width:10px">
-                    @if (i >= dayOfWeekLocalNumber)
+                    @if (i >= DayOfWeekLocalNumber)
                     {
-                        var nextDayStringRepr = tenantsForDay[0][i - dayOfWeekLocalNumber].DayId;
+                        var nextDayStringRepr = tenantsForDay[0][i - DayOfWeekLocalNumber].DayId;
                         var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[0][i - dayOfWeekLocalNumber].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
+                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[0][i - DayOfWeekLocalNumber].TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
 
                         @if (calendarButtontype == "btn-danger")
                         {
@@ -84,7 +84,7 @@
                         var nextDayStringRepr = tenantsForDay[1][i - 7].DayId;
                         var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[1][i - 7].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
+                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[1][i - 7].TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
 
                         @if (calendarButtontype == "btn-danger")
                         {
@@ -108,7 +108,7 @@
                         var nextDayStringRepr = tenantsForDay[2][i - 14].DayId;
                         var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[2][i - 14].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
+                        var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[2][i - 14].TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
 
                         @if (calendarButtontype == "btn-danger")
                         {
@@ -130,12 +130,12 @@
                 <td class="align-middle" style="width:10px">
                     @if (i >= 21)
                     {
-                        if (i - dayOfWeekLocalNumber < nuberOfDaysToShow)
+                        if (i - DayOfWeekLocalNumber < NumberOfDaysToShow)
                         {
                             var nextDayStringRepr = tenantsForDay[3][i - 21].DayId;
                             var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[3][i - 21].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
+                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[3][i - 21].TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
 
                             @if (calendarButtontype == "btn-danger")
                             {
@@ -158,12 +158,12 @@
                 <td class="align-middle" style="width:10px">
                     @if (i >= 28)
                     {
-                        if (i - dayOfWeekLocalNumber < nuberOfDaysToShow)
+                        if (i - DayOfWeekLocalNumber < NumberOfDaysToShow)
                         {
                             var nextDayStringRepr = tenantsForDay[4][i - 28].DayId;
                             var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[4][i - 28].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
+                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[4][i - 28].TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
 
                             @if (calendarButtontype == "btn-danger")
                             {
@@ -183,17 +183,17 @@
                 }
                             </tr>
                             <tr>
-                @for (int i = 35; i < 42 - dayOfWeekLocalNumber + 1; i++)
+                @for (int i = 35; i < 42 - DayOfWeekLocalNumber + 1; i++)
                 {
                 <td class="align-middle" style="width:10px">
                     @if (i >= 35)
                     {
-                        if (i - dayOfWeekLocalNumber < nuberOfDaysToShow)
+                        if (i - DayOfWeekLocalNumber < NumberOfDaysToShow)
                         {
                             var nextDayStringRepr = tenantsForDay[5][i - 35].DayId;
                             var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
 
-                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[5][i - 35].TenantIds.Count, tenantsDaysForUI, nextDayStringRepr);
+                            var calendarButtontype = GetTypeOfCalendarDay(tenantsForDay[5][i - 35].TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
 
                             @if (calendarButtontype == "btn-danger")
                             {

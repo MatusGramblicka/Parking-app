@@ -7,68 +7,64 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using System.Threading.Tasks;
 
-namespace BlazorProducts.Client.Pages
+namespace BlazorProducts.Client.Pages;
+
+public partial class CreateWebHook
 {
-	public partial class CreateWebHook
-	{
-		private WebHookSubscriptionForCreationDto _webhook = new WebHookSubscriptionForCreationDto();
-		private EditContext _editContext;
-		private bool formInvalid = true;
+    private WebHookSubscriptionForCreationDto _webhook = new();
+    private EditContext _editContext;
+    private bool _formInvalid = true;
 
-		[Inject]
-		public IWebHookRepository WebhookRepo { get; set; }
+    [Inject] public IWebHookRepository WebhookRepo { get; set; }
 
-		[Inject]
-		public HttpInterceptorService Interceptor { get; set; }
+    [Inject] public HttpInterceptorService Interceptor { get; set; }
 
-		[Inject]
-		public IToastService ToastService { get; set; }
+    [Inject] public IToastService ToastService { get; set; }
 
-		protected override void OnInitialized()
-		{
-			_webhook.IsActive = true;
-			_webhook.FailureHandlingStrategyFlags = FailureHandlingStrategy.LogFailure;
-			_webhook.MaxSendAttemptCount = 3;
-			_webhook.SignatureHeaderName = "";
-			_webhook.SigningSecret = "";
+    protected override void OnInitialized()
+    {
+        _webhook.IsActive = true;
+        _webhook.FailureHandlingStrategyFlags = FailureHandlingStrategy.LogFailure;
+        _webhook.MaxSendAttemptCount = 3;
+        _webhook.SignatureHeaderName = "";
+        _webhook.SigningSecret = "";
 
 
-			_editContext = new EditContext(_webhook);
-			_editContext.OnFieldChanged += HandleFieldChanged;
-			Interceptor.RegisterEvent();
-		}
+        _editContext = new EditContext(_webhook);
+        _editContext.OnFieldChanged += HandleFieldChanged;
+        Interceptor.RegisterEvent();
+    }
 
-		private void HandleFieldChanged(object sender, FieldChangedEventArgs e)
-		{
-			formInvalid = !_editContext.Validate();
-			StateHasChanged();
-		}
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        _formInvalid = !_editContext.Validate();
+        StateHasChanged();
+    }
 
-		private async Task Create()
-		{
-			await WebhookRepo.CreateWebhook(_webhook);
+    private async Task Create()
+    {
+        await WebhookRepo.CreateWebhook(_webhook);
 
-			ToastService.ShowSuccess($"Action successful. " +
-				$"Webhook \"{_webhook.WebHookUri}\" successfully added.");
-			_webhook = new WebHookSubscriptionForCreationDto();
-			_editContext.OnValidationStateChanged += ValidationChanged;
-			_editContext.NotifyValidationStateChanged();
-		}
+        ToastService.ShowSuccess($"Action successful. " +
+                                 $"Webhook \"{_webhook.WebHookUri}\" successfully added.");
+        _webhook = new WebHookSubscriptionForCreationDto();
+        _editContext.OnValidationStateChanged += ValidationChanged;
+        _editContext.NotifyValidationStateChanged();
+    }
 
-		private void ValidationChanged(object sender, ValidationStateChangedEventArgs e)
-		{
-			formInvalid = true;
-			_editContext.OnFieldChanged -= HandleFieldChanged;
-			_editContext = new EditContext(_webhook);
-			_editContext.OnFieldChanged += HandleFieldChanged;
-			_editContext.OnValidationStateChanged -= ValidationChanged;
-		}
+    private void ValidationChanged(object sender, ValidationStateChangedEventArgs e)
+    {
+        _formInvalid = true;
+        _editContext.OnFieldChanged -= HandleFieldChanged;
+        _editContext = new EditContext(_webhook);
+        _editContext.OnFieldChanged += HandleFieldChanged;
+        _editContext.OnValidationStateChanged -= ValidationChanged;
+    }
 
-		public void Dispose()
-		{
-			Interceptor.DisposeEvent();
-			_editContext.OnFieldChanged -= HandleFieldChanged;
-			_editContext.OnValidationStateChanged -= ValidationChanged;
-		}
-	}
+    public void Dispose()
+    {
+        Interceptor.DisposeEvent();
+        _editContext.OnFieldChanged -= HandleFieldChanged;
+        _editContext.OnValidationStateChanged -= ValidationChanged;
+    }
 }

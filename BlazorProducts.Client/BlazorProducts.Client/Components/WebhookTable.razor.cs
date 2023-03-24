@@ -5,29 +5,26 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BlazorProducts.Client.Components
+namespace BlazorProducts.Client.Components;
+
+public partial class WebhookTable
 {
-    public partial class WebhookTable
+    [Parameter] public List<WebHookSubscription> Webhooks { get; set; }
+
+    [Parameter] public EventCallback<Guid> OnDelete { get; set; }
+
+    private Confirmation _confirmation;
+    private Guid _webhookIdToDelete;
+
+    private void CallConfirmationModal(Guid id)
     {
-        [Parameter]
-        public List<WebHookSubscription> Webhooks { get; set; }
+        _webhookIdToDelete = id;
+        _confirmation.Show();
+    }
 
-        [Parameter]
-        public EventCallback<Guid> OnDelete { get; set; }
-
-        private Confirmation _confirmation;
-        private Guid _webhookIdToDelete;
-
-        private void CallConfirmationModal(Guid id)
-        {
-            _webhookIdToDelete = id;
-            _confirmation.Show();
-        }
-
-        private async Task DeleteWebhook()
-        {
-            _confirmation.Hide();
-            await OnDelete.InvokeAsync(_webhookIdToDelete);
-        }
+    private async Task DeleteWebhook()
+    {
+        _confirmation.Hide();
+        await OnDelete.InvokeAsync(_webhookIdToDelete);
     }
 }

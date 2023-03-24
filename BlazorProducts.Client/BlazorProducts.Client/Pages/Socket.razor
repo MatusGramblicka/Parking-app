@@ -7,9 +7,9 @@
 @if (webSocket.State == WebSocketState.Open)
 {
     <form @onsubmit="@SendMessageAsync">
-        Message: <input @bind="@message" />
+        Message: <input @bind="@_message" />
         <button type="submit">Send</button>
     </form>
 
-    <pre>@log</pre>
+    <pre>@_log</pre>
 }
