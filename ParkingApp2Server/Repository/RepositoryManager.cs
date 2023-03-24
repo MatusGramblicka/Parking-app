@@ -1,54 +1,53 @@
-﻿using Repository.Contracts;
-using Entities;
+﻿using Entities;
+using Repository.Contracts;
 using System.Threading.Tasks;
 
-namespace Repository
+namespace Repository;
+
+public class RepositoryManager : IRepositoryManager
 {
-    public class RepositoryManager : IRepositoryManager
+    private readonly RepositoryContext _repositoryContext;
+    private IDayRepository _dayRepository;
+    private ITenantRepository _tenantRepository;
+    private IWebHookRepository _webHookRepository;
+
+    public RepositoryManager(RepositoryContext repositoryContext)
     {
-        private RepositoryContext _repositoryContext;
-        private IDayRepository _dayRepository;
-        private ITenantRepository _tenantRepository;
-        private IWebHookRepository _webHookRepository;
-
-        public RepositoryManager(RepositoryContext repositoryContext)
-        {
-            _repositoryContext = repositoryContext;
-        }
-
-        public IDayRepository Day
-        {
-            get
-            {
-                if (_dayRepository == null)
-                    _dayRepository = new DayRepository(_repositoryContext);
-
-                return _dayRepository;
-            }
-        }
-
-        public ITenantRepository Tenant
-        {
-            get
-            {
-                if (_tenantRepository == null)
-                    _tenantRepository = new TenantRepository(_repositoryContext);
-
-                return _tenantRepository;
-            }
-        }
-
-        public IWebHookRepository WebHook
-        {
-            get
-            {
-                if (_webHookRepository == null)
-                    _webHookRepository = new WebHookRepository(_repositoryContext);
-
-                return _webHookRepository;
-            }
-        }
-
-        public Task SaveAsync() => _repositoryContext.SaveChangesAsync();
+        _repositoryContext = repositoryContext;
     }
+
+    public IDayRepository Day
+    {
+        get
+        {
+            if (_dayRepository == null)
+                _dayRepository = new DayRepository(_repositoryContext);
+
+            return _dayRepository;
+        }
+    }
+
+    public ITenantRepository Tenant
+    {
+        get
+        {
+            if (_tenantRepository == null)
+                _tenantRepository = new TenantRepository(_repositoryContext);
+
+            return _tenantRepository;
+        }
+    }
+
+    public IWebHookRepository WebHook
+    {
+        get
+        {
+            if (_webHookRepository == null)
+                _webHookRepository = new WebHookRepository(_repositoryContext);
+
+            return _webHookRepository;
+        }
+    }
+
+    public Task SaveAsync() => _repositoryContext.SaveChangesAsync();
 }

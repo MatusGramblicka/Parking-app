@@ -1,23 +1,22 @@
 ﻿using System.Collections.Generic;
 using WebSocket.Contracts;
 
-namespace WebSocket.Middlewares
+namespace WebSocket.Middlewares;
+
+public class WebSocketConnectionsOptions
 {
-    public class WebSocketConnectionsOptions
+    public HashSet<string> AllowedOrigins { get; set; }
+
+    public IList<ITextWebSocketSubprotocol> SupportedSubProtocols { get; set; }
+
+    public ITextWebSocketSubprotocol DefaultSubProtocol { get; set; }
+
+    public int? SendSegmentSize { get; set; }
+
+    public int ReceivePayloadBufferSize { get; set; }
+
+    public WebSocketConnectionsOptions()
     {
-        public HashSet<string> AllowedOrigins { get; set; }
-
-        public IList<ITextWebSocketSubprotocol> SupportedSubProtocols { get; set; }
-
-        public ITextWebSocketSubprotocol DefaultSubProtocol { get; set; }
-
-        public int? SendSegmentSize { get; set; }
-
-        public int ReceivePayloadBufferSize { get; set; }
-
-        public WebSocketConnectionsOptions()
-        {
-            ReceivePayloadBufferSize = 4 * 1024;
-        }
+        ReceivePayloadBufferSize = 4 * 1024;
     }
 }

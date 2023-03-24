@@ -2,23 +2,22 @@
 using System.Threading.Tasks;
 using WebHooks.Contracts;
 
-namespace WebHooks.Infrastructure
+namespace WebHooks.Infrastructure;
+
+public class WebHookMessageEventsBusAdapter : IConsumer<WebHookMessage>
 {
-    public class WebHookMessageEventsBusAdapter : IConsumer<WebHookMessage>
+    private readonly IWebHookPayloadProcessor _webHookPayloadProcessor;
+
+    public WebHookMessageEventsBusAdapter(IWebHookPayloadProcessor webHookPayloadProcessor)
     {
-        private readonly IWebHookPayloadProcessor _webHookPayloadProcessor;
+        _webHookPayloadProcessor = webHookPayloadProcessor;
+    }
 
-        public WebHookMessageEventsBusAdapter(IWebHookPayloadProcessor webHookPayloadProcessor)
+    public Task OnHandle(WebHookMessage message, string path)
+    {
+        return Task.Run(() =>
         {
-            _webHookPayloadProcessor = webHookPayloadProcessor;
-        }
-
-        public Task OnHandle(WebHookMessage message, string path)
-        {
-            return Task.Run(() =>
-            {
-                _webHookPayloadProcessor.SendWebHookAsync(message.WebHookSubscriptions, message.Value);
-            });
-        }
+            _webHookPayloadProcessor.SendWebHookAsync(message.WebHookSubscriptions, message.Value);
+        });
     }
 }

@@ -1,6 +1,5 @@
-﻿namespace Entities.RequestFeatures
+﻿namespace Entities.RequestFeatures;
+
+public class TenantParameters : RequestParameters
 {
-    public class TenantParameters : RequestParameters
-    {
-    }
 }

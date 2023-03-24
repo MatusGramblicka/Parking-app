@@ -1,7 +1,6 @@
-﻿namespace Entities.Configuration
+﻿namespace Entities.Configuration;
+
+public class ApiConfiguration
 {
-    public class ApiConfiguration
-    {
-        public string BaseAddress { get; set; }
-    }
+    public string BaseAddress { get; set; }
 }

@@ -2,14 +2,14 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WebSocket.Contracts
+namespace WebSocket.Contracts;
+
+public interface ITextWebSocketSubprotocol
 {
-    public interface ITextWebSocketSubprotocol
-    {
-        string SubProtocol { get; }
+    string SubProtocol { get; }
 
-        Task SendAsync(string message, Func<byte[], CancellationToken, Task> sendMessageBytesAsync, CancellationToken cancellationToken);
+    Task SendAsync(string message, Func<byte[], CancellationToken, Task> sendMessageBytesAsync,
+        CancellationToken cancellationToken);
 
-        string Read(string rawMessage);
-    }
+    string Read(string rawMessage);
 }

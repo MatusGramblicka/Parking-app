@@ -1,23 +1,20 @@
-﻿using Entities.WebSocket;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using WebHooks.Contracts;
 using WebSocket.Contracts;
 
-namespace WebHooks.Services
+namespace WebHooks.Services;
+
+public class WebSocketSender : IWebSocketSender
 {
-    public class WebSocketSender : IWebSocketSender
+    private readonly IWebSocketConnectionsService _webSocketConnectionsService;
+
+    public WebSocketSender(IWebSocketConnectionsService webSocketConnectionsService)
     {
-        private readonly IWebSocketConnectionsService _webSocketConnectionsService;
+        _webSocketConnectionsService = webSocketConnectionsService;
+    }
 
-        public WebSocketSender(IWebSocketConnectionsService webSocketConnectionsService)
-        {
-            _webSocketConnectionsService= webSocketConnectionsService;
-        }
-
-        public async Task SendWebSocketMessage(string message)
-        {            
-            await _webSocketConnectionsService.SendToAllAsync(message, default);           
-        }
+    public async Task SendWebSocketMessage(string message)
+    {
+        await _webSocketConnectionsService.SendToAllAsync(message, default);
     }
 }

@@ -1,8 +1,7 @@
-﻿namespace Entities.DTO
+﻿namespace Entities.DTO;
+
+public class TenantDay
 {
-    public class TenantDay
-    {
-        public string DayId { get; set; }
-        public string TenantId { get; set; }
-    }
+    public string DayId { get; set; }
+    public string TenantId { get; set; }
 }

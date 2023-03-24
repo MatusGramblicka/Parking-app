@@ -2,15 +2,14 @@
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Repository.Contracts
+namespace Repository.Contracts;
+
+public interface IRepositoryBase<T>
 {
-    public interface IRepositoryBase<T>
-    {
-        IQueryable<T> FindAll(bool trackChanges);
-        IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression,
+    IQueryable<T> FindAll(bool trackChanges);
+    IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression,
         bool trackChanges);
-        void Create(T entity);
-        void Update(T entity);
-        void Delete(T entity);
-    }
+    void Create(T entity);
+    void Update(T entity);
+    void Delete(T entity);
 }

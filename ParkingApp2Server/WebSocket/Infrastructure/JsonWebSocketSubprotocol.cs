@@ -4,17 +4,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using WebSocket.Contracts;
 
-namespace WebSocket.Infrastructure
+namespace WebSocket.Infrastructure;
+
+public class JsonWebSocketSubprotocol : TextWebSocketSubprotocolBase, ITextWebSocketSubprotocol
 {
-    public class JsonWebSocketSubprotocol : TextWebSocketSubprotocolBase, ITextWebSocketSubprotocol
+    public string SubProtocol => "aspnetcore-ws.json";
+
+    public override Task SendAsync(string message, Func<byte[], CancellationToken, Task> sendMessageBytesAsync,
+        CancellationToken cancellationToken)
     {
-        public string SubProtocol => "aspnetcore-ws.json";
+        var jsonMessage = JsonConvert.SerializeObject(new {message, timestamp = DateTime.UtcNow});
 
-        public override Task SendAsync(string message, Func<byte[], CancellationToken, Task> sendMessageBytesAsync, CancellationToken cancellationToken)
-        {
-            string jsonMessage = JsonConvert.SerializeObject(new { message, timestamp = DateTime.UtcNow });
-
-            return base.SendAsync(jsonMessage, sendMessageBytesAsync, cancellationToken);
-        }
+        return base.SendAsync(jsonMessage, sendMessageBytesAsync, cancellationToken);
     }
 }

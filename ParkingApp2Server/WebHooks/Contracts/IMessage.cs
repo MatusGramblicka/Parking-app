@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace WebHooks.Contracts
+namespace WebHooks.Contracts;
+
+public interface IMessage
 {
-    public interface IMessage
-    {
-        Guid CorrelationId { get; set; }
-    }
+    Guid CorrelationId { get; set; }
 }

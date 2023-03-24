@@ -4,58 +4,51 @@ using System.Threading;
 using System.Threading.Tasks;
 using WebSocket.Contracts;
 
-namespace WebSocket
+namespace WebSocket;
+
+public class HeartbeatService : IHostedService
 {
-    public class HeartbeatService : IHostedService
+    private const string HeartbeatMessage = "Demo.AspNetCore.WebSockets Heartbeat";
+
+    private readonly IWebSocketConnectionsService _webSocketConnectionsService;
+
+    private Task _heartbeatTask;
+    private CancellationTokenSource _cancellationTokenSource;
+
+    public HeartbeatService(IWebSocketConnectionsService webSocketConnectionsService)
     {
-        #region Fields
-        private const string HEARTBEAT_MESSAGE = "Demo.AspNetCore.WebSockets Heartbeat";
+        _webSocketConnectionsService = webSocketConnectionsService;
+    }
 
-        private readonly IWebSocketConnectionsService _webSocketConnectionsService;
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-        private Task _heartbeatTask;
-        private CancellationTokenSource _cancellationTokenSource;
-        #endregion
+        _heartbeatTask = HeartbeatAsync(_cancellationTokenSource.Token);
 
-        #region Constructor
-        public HeartbeatService(IWebSocketConnectionsService webSocketConnectionsService)
+        return _heartbeatTask.IsCompleted ? _heartbeatTask : Task.CompletedTask;
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        if (_heartbeatTask != null)
         {
-            _webSocketConnectionsService = webSocketConnectionsService;
-        }
-        #endregion
+            _cancellationTokenSource.Cancel();
 
-        #region Methods
-        public Task StartAsync(CancellationToken cancellationToken)
+            await Task.WhenAny(_heartbeatTask, Task.Delay(-1, cancellationToken));
+
+            cancellationToken.ThrowIfCancellationRequested();
+        }
+    }
+
+    //https://github.com/tpeczek/Demo.AspNetCore.WebSockets
+    private async Task HeartbeatAsync(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
         {
-            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            await _webSocketConnectionsService.SendToAllAsync(HeartbeatMessage, cancellationToken);
 
-            _heartbeatTask = HeartbeatAsync(_cancellationTokenSource.Token);
-
-            return _heartbeatTask.IsCompleted ? _heartbeatTask : Task.CompletedTask;
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
         }
-
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-            if (_heartbeatTask != null)
-            {
-                _cancellationTokenSource.Cancel();
-
-                await Task.WhenAny(_heartbeatTask, Task.Delay(-1, cancellationToken));
-
-                cancellationToken.ThrowIfCancellationRequested();
-            }
-        }
-
-        //https://github.com/tpeczek/Demo.AspNetCore.WebSockets
-        private async Task HeartbeatAsync(CancellationToken cancellationToken)
-        {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                await _webSocketConnectionsService.SendToAllAsync(HEARTBEAT_MESSAGE, cancellationToken);
-
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
-            }
-        }
-        #endregion
     }
 }

@@ -1,89 +1,92 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using WebSocket.Contracts;
 using WebSocket.Infrastructure;
 using WebSocket.Middlewares;
 
-namespace ParkingApp2Server.Middleware.WebSocket
+namespace ParkingApp2Server.Middleware.WebSocket;
+
+public class WebSocketConnectionsMiddleware
 {
-    public class WebSocketConnectionsMiddleware
+    private readonly WebSocketConnectionsOptions _options;
+    private readonly IWebSocketConnectionsService _connectionsService;
+
+    public WebSocketConnectionsMiddleware(RequestDelegate next, WebSocketConnectionsOptions options,
+        IWebSocketConnectionsService connectionsService)
     {
-        #region Fields
-        private readonly WebSocketConnectionsOptions _options;
-        private readonly IWebSocketConnectionsService _connectionsService;
-        #endregion
+        _options = options ?? throw new ArgumentNullException(nameof(options));
+        _connectionsService = connectionsService ?? throw new ArgumentNullException(nameof(connectionsService));
+    }
 
-        #region Constructor
-        public WebSocketConnectionsMiddleware(RequestDelegate next, WebSocketConnectionsOptions options, IWebSocketConnectionsService connectionsService)
+    public async Task Invoke(HttpContext context)
+    {
+        if (context.WebSockets.IsWebSocketRequest)
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
-            _connectionsService = connectionsService ?? throw new ArgumentNullException(nameof(connectionsService));
-        }
-        #endregion
-
-        #region Methods
-        public async Task Invoke(HttpContext context)
-        {
-            if (context.WebSockets.IsWebSocketRequest)
+            if (ValidateOrigin(context))
             {
-                if (ValidateOrigin(context))
-                {
-                    ITextWebSocketSubprotocol textSubProtocol = NegotiateSubProtocol(context.WebSockets.WebSocketRequestedProtocols);
-                     
-                    System.Net.WebSockets.WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync(new WebSocketAcceptContext
+                var textSubProtocol =
+                    NegotiateSubProtocol(context.WebSockets.WebSocketRequestedProtocols);
+
+                var webSocket = await context.WebSockets.AcceptWebSocketAsync(
+                    new WebSocketAcceptContext
                     {
                         SubProtocol = textSubProtocol?.SubProtocol,
                         DangerousEnableCompression = true
                     });
 
-                    WebSocketConnection webSocketConnection = new WebSocketConnection(webSocket, textSubProtocol ?? _options.DefaultSubProtocol, _options.SendSegmentSize, _options.ReceivePayloadBufferSize);
-                    webSocketConnection.ReceiveText += async (sender, message) => { await webSocketConnection.SendAsync(message, CancellationToken.None); };
-
-                    _connectionsService.AddConnection(webSocketConnection);
-
-                    await webSocketConnection.ReceiveMessagesUntilCloseAsync();
-
-                    if (webSocketConnection.CloseStatus.HasValue)
-                    {
-                        await webSocket.CloseAsync(webSocketConnection.CloseStatus.Value, webSocketConnection.CloseStatusDescription, CancellationToken.None);
-                    }
-
-                    _connectionsService.RemoveConnection(webSocketConnection.Id);
-                }
-                else
+                var webSocketConnection = new WebSocketConnection(webSocket,
+                    textSubProtocol ?? _options.DefaultSubProtocol, _options.SendSegmentSize,
+                    _options.ReceivePayloadBufferSize);
+                webSocketConnection.ReceiveText += async (sender, message) =>
                 {
-                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    await webSocketConnection.SendAsync(message, CancellationToken.None);
+                };
+
+                _connectionsService.AddConnection(webSocketConnection);
+
+                await webSocketConnection.ReceiveMessagesUntilCloseAsync();
+
+                if (webSocketConnection.CloseStatus.HasValue)
+                {
+                    await webSocket.CloseAsync(webSocketConnection.CloseStatus.Value,
+                        webSocketConnection.CloseStatusDescription, CancellationToken.None);
                 }
+
+                _connectionsService.RemoveConnection(webSocketConnection.Id);
             }
             else
             {
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
             }
         }
-
-        private bool ValidateOrigin(HttpContext context)
+        else
         {
-            return (_options.AllowedOrigins == null) || (_options.AllowedOrigins.Count == 0) || (_options.AllowedOrigins.Contains(context.Request.Headers["Origin"].ToString()));
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
         }
+    }
 
-        private ITextWebSocketSubprotocol NegotiateSubProtocol(IList<string> requestedSubProtocols)
+    private bool ValidateOrigin(HttpContext context)
+    {
+        return _options.AllowedOrigins == null || _options.AllowedOrigins.Count == 0 ||
+               _options.AllowedOrigins.Contains(context.Request.Headers["Origin"].ToString());
+    }
+
+    private ITextWebSocketSubprotocol NegotiateSubProtocol(IList<string> requestedSubProtocols)
+    {
+        ITextWebSocketSubprotocol subProtocol = null;
+
+        foreach (ITextWebSocketSubprotocol supportedSubProtocol in _options.SupportedSubProtocols)
         {
-            ITextWebSocketSubprotocol subProtocol = null;
-
-            foreach (ITextWebSocketSubprotocol supportedSubProtocol in _options.SupportedSubProtocols)
+            if (requestedSubProtocols.Contains(supportedSubProtocol.SubProtocol))
             {
-                if (requestedSubProtocols.Contains(supportedSubProtocol.SubProtocol))
-                {
-                    subProtocol = supportedSubProtocol;
-                    break;
-                }
+                subProtocol = supportedSubProtocol;
+                break;
             }
-
-            return subProtocol;
         }
-        #endregion
+
+        return subProtocol;
     }
 }

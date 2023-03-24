@@ -3,14 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using WebSocket.Infrastructure;
 
-namespace WebSocket.Contracts
+namespace WebSocket.Contracts;
+
+public interface IWebSocketConnectionsService
 {
-    public interface IWebSocketConnectionsService
-    {
-        void AddConnection(WebSocketConnection connection);
+    void AddConnection(WebSocketConnection connection);
 
-        void RemoveConnection(Guid connectionId);
+    void RemoveConnection(Guid connectionId);
 
-        Task SendToAllAsync(string message, CancellationToken cancellationToken);
-    }
+    Task SendToAllAsync(string message, CancellationToken cancellationToken);
 }
