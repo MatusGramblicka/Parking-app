@@ -59,9 +59,8 @@ public partial class Users : IDisposable
         {
             // How many users are priviledged ones?				
             var users = await UsersHttpRepository.GetUsers();
-            var priviledgedUsersCount = users.Where(w => w.Priviledged)
-                .ToList()
-                .Count;
+            var priviledgedUsersCount = users.Count(w => w.Priviledged);
+                
             if (priviledgedUsersCount >= priviledgedUsersConfiguration.MaxCount)
             {
                 //todo some pop up to show

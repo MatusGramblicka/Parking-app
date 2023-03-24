@@ -72,8 +72,6 @@ public class AccountController : Controller
 
         var token = await _authenticationService.GetToken(user);
 
-        //await _userManager.AddToRoleAsync(user, "Administrator");
-
         user.RefreshToken = _authenticationService.GenerateRefreshToken();
         user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
         await _userManager.UpdateAsync(user);

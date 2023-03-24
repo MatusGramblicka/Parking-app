@@ -6,53 +6,53 @@
 
 
 @if (tenantsForDay.Any())
-{   
-<div>
-    <div style="float: right">
-        <div style="text-align:right; ">
-            <button type="button" style="width: 100px;" class="btn btn-success">
-                free
-            </button>
+{
+    <div>
+        <div style="float: right">
+            <div style="text-align: right;">
+                <button type="button" style="width: 100px;" class="btn btn-success">
+                    free
+                </button>
+            </div>
+            <div style="text-align: right;">
+                <button type="button" style="width: 100px;" class="btn btn-warning">
+                    yours
+                </button>
+            </div>
+            <div style="text-align: right;">
+                <button type="button" style="width: 100px;" class="btn btn-danger">
+                    occupied
+                </button>
+            </div>
         </div>
-        <div style="text-align:right;">
-            <button type="button" style="width: 100px;" class="btn btn-warning">
-                yours
-            </button>
-        </div>
-        <div style="text-align:right;">
-            <button type="button" style="width: 100px;" class="btn btn-danger">
-                occupied
-            </button>
-        </div>
-    </div>
 
-    <div style="float: left">
-        <div>Your booked days in this calendar are: </div>
-        @foreach (var tenantsDays in TenantsDayActualSelection)
-        {
-        <div>
-            @tenantsDays
+        <div style="float: left">
+            <div>Your booked days in this calendar are: </div>
+            @foreach (var tenantsDays in TenantsDayActualSelection)
+            {
+                <div>
+                    @tenantsDays
+                </div>
+            }
         </div>
-        }
     </div>
-</div>
     <table class="box">
         <thead>
-            <tr>
-                <th class="align-middle" scope="col" style="width:10px">Mon</th>
-                <th class="align-middle" scope="col" style="width:10px">Tue</th>
-                <th class="align-middle" scope="col" style="width:10px">Wed</th>
-                <th class="align-middle" scope="col" style="width:10px">Thu</th>
-                <th class="align-middle" scope="col" style="width:10px">Fri</th>
-                <th class="align-middle" scope="col" style="width:10px">Sat</th>
-                <th class="align-middle" scope="col" style="width:10px">Sun</th>
-            </tr>
+        <tr>
+            <th class="align-middle" scope="col" style="width: 10px">Mon</th>
+            <th class="align-middle" scope="col" style="width: 10px">Tue</th>
+            <th class="align-middle" scope="col" style="width: 10px">Wed</th>
+            <th class="align-middle" scope="col" style="width: 10px">Thu</th>
+            <th class="align-middle" scope="col" style="width: 10px">Fri</th>
+            <th class="align-middle" scope="col" style="width: 10px">Sat</th>
+            <th class="align-middle" scope="col" style="width: 10px">Sun</th>
+        </tr>
         </thead>
         <tbody>
-            <tr>
-                @for (int i = 0; i < 7; i++)
-                {
-                <td class="align-middle" style="width:10px">
+        <tr>
+            @for (var i = 0; i < 7; i++)
+            {
+                <td class="align-middle" style="width: 10px">
                     @if (i >= DayOfWeekLocalNumber)
                     {
                         var nextDayStringRepr = tenantsForDay[0][i - DayOfWeekLocalNumber].DayId;
@@ -68,17 +68,18 @@
                         }
                         else
                         {
-                <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
-                    @nextDayStringReprToShowOnUi
-                </button>                        }
+                            <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
+                                @nextDayStringReprToShowOnUi
+                            </button>
+                        }
                     }
                 </td>
-                                }
-                            </tr>
-                            <tr>
-                                @for (int i = 7; i < 14; i++)
-                                {
-                <td class="align-middle" style="width:10px">
+            }
+        </tr>
+        <tr>
+                @for (var i = 7; i < 14; i++)
+            {
+                <td class="align-middle" style="width: 10px">
                     @if (i >= 7)
                     {
                         var nextDayStringRepr = tenantsForDay[1][i - 7].DayId;
@@ -94,15 +95,18 @@
                         }
                         else
                         {
-                <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
-                    @nextDayStringReprToShowOnUi
-                </button>                        }                    }
-                </td>}
-                            </tr>
-                            <tr>
-                                @for (int i = 14; i < 21; i++)
-                                {
-                <td class="align-middle" style="width:10px">
+                            <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
+                                @nextDayStringReprToShowOnUi
+                            </button>
+                        }
+                    }
+                </td>
+            }
+        </tr>
+        <tr>
+                @for (var i = 14; i < 21; i++)
+            {
+                <td class="align-middle" style="width: 10px">
                     @if (i >= 14)
                     {
                         var nextDayStringRepr = tenantsForDay[2][i - 14].DayId;
@@ -118,16 +122,18 @@
                         }
                         else
                         {
-                <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
-                    @nextDayStringReprToShowOnUi
-                </button>                        }                    }
+                            <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
+                                @nextDayStringReprToShowOnUi
+                            </button>
+                        }
+                    }
                 </td>
-                                }
-                            </tr>
-                            <tr>
-                                @for (int i = 21; i < 28; i++)
-                                {
-                <td class="align-middle" style="width:10px">
+            }
+        </tr>
+        <tr>
+                @for (var i = 21; i < 28; i++)
+            {
+                <td class="align-middle" style="width: 10px">
                     @if (i >= 21)
                     {
                         if (i - DayOfWeekLocalNumber < NumberOfDaysToShow)
@@ -145,17 +151,19 @@
                             }
                             else
                             {
-                <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
-                    @nextDayStringReprToShowOnUi
-                </button>                            }                        }
+                                <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
+                                    @nextDayStringReprToShowOnUi
+                                </button>
+                            }
+                        }
                     }
                 </td>
-                                }
-                            </tr>
-                            <tr>
-                                @for (int i = 28; i < 35; i++)
-                                {
-                <td class="align-middle" style="width:10px">
+            }
+        </tr>
+        <tr>
+                @for (var i = 28; i < 35; i++)
+            {
+                <td class="align-middle" style="width: 10px">
                     @if (i >= 28)
                     {
                         if (i - DayOfWeekLocalNumber < NumberOfDaysToShow)
@@ -173,19 +181,19 @@
                             }
                             else
                             {
-                            <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
-                                @nextDayStringReprToShowOnUi
-                            </button>                            
-                            }                        
+                                <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
+                                    @nextDayStringReprToShowOnUi
+                                </button>
+                            }
                         }
-                     }
+                    }
                 </td>
-                }
-                            </tr>
-                            <tr>
-                @for (int i = 35; i < 42 - DayOfWeekLocalNumber + 1; i++)
-                {
-                <td class="align-middle" style="width:10px">
+            }
+        </tr>
+        <tr>
+                @for (var i = 35; i < 42 - DayOfWeekLocalNumber + 1; i++)
+            {
+                <td class="align-middle" style="width: 10px">
                     @if (i >= 35)
                     {
                         if (i - DayOfWeekLocalNumber < NumberOfDaysToShow)
@@ -203,15 +211,15 @@
                             }
                             else
                             {
-                            <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
-                                @nextDayStringReprToShowOnUi
-                            </button>                            
-                            }                        
+                                <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
+                                    @nextDayStringReprToShowOnUi
+                                </button>
+                            }
                         }
                     }
                 </td>
-                }
-            </tr>
+            }
+        </tr>
         </tbody>
     </table>
 }
@@ -219,15 +227,15 @@ else
 {
     <table class="box">
         <thead>
-            <tr>
-                <th class="align-middle" scope="col" style="width:10px">Mon</th>
-                <th class="align-middle" scope="col" style="width:10px">Tue</th>
-                <th class="align-middle" scope="col" style="width:10px">Wed</th>
-                <th class="align-middle" scope="col" style="width:10px">Thu</th>
-                <th class="align-middle" scope="col" style="width:10px">Fri</th>
-                <th class="align-middle" scope="col" style="width:10px">Sat</th>
-                <th class="align-middle" scope="col" style="width:10px">Sun</th>
-            </tr>
+        <tr>
+            <th class="align-middle" scope="col" style="width: 10px">Mon</th>
+            <th class="align-middle" scope="col" style="width: 10px">Tue</th>
+            <th class="align-middle" scope="col" style="width: 10px">Wed</th>
+            <th class="align-middle" scope="col" style="width: 10px">Thu</th>
+            <th class="align-middle" scope="col" style="width: 10px">Fri</th>
+            <th class="align-middle" scope="col" style="width: 10px">Sat</th>
+            <th class="align-middle" scope="col" style="width: 10px">Sun</th>
+        </tr>
         </thead>
     </table>
     <span>
