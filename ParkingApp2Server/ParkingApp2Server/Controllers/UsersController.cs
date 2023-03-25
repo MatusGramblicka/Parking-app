@@ -32,9 +32,9 @@ public class UsersController : Controller
     }
 
     [HttpGet("Users")]
-    public async Task<IActionResult> GetUsers()
+    public IActionResult GetUsers()
     {
-        var allUsers = _userManager.Users.AsNoTracking()/*.ToList()*/;
+        var allUsers = _userManager.Users.AsNoTracking();
 
         var userLite = _mapper.Map<IEnumerable<UserLite>>(allUsers);
 
