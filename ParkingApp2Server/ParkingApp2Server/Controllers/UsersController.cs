@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace ParkingApp2Server.Controllers;
 
@@ -31,9 +32,9 @@ public class UsersController : Controller
     }
 
     [HttpGet("Users")]
-    public async Task<IActionResult> GetUsers()
+    public IActionResult GetUsers()
     {
-        var allUsers = _userManager.Users.ToList();
+        var allUsers = _userManager.Users.AsNoTracking();
 
         var userLite = _mapper.Map<IEnumerable<UserLite>>(allUsers);
 
@@ -57,14 +58,14 @@ public class UsersController : Controller
 
         var rolesForUser = await _userManager.GetRolesAsync(user);
 
-        foreach (var login in logins.ToList())
+        foreach (var login in logins)
         {
             await _userManager.RemoveLoginAsync(user, login.LoginProvider, login.ProviderKey);
         }
 
         if (rolesForUser.Count > 0)
         {
-            foreach (var item in rolesForUser.ToList())
+            foreach (var item in rolesForUser)
             {
                 await _userManager.RemoveFromRoleAsync(user, item);
             }
@@ -88,10 +89,12 @@ public class UsersController : Controller
         if (userLite.Priviledged)
         {
             // How many users are priviledged ones?
-            var allUsers = _userManager.Users.ToList();
+            var allUsers = _userManager.Users.AsNoTracking();
             var priviledgedUsersCount = allUsers.Where(w => w.Priviledged).ToList().Count;
             if (priviledgedUsersCount >= _priviledgedUsersSettings.MaxCount)
+            {
                 return BadRequest();
+            }
         }
 
         user.Priviledged = userLite.Priviledged;

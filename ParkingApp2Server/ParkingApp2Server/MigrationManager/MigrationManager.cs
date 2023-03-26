@@ -12,17 +12,15 @@ public static class MigrationManager
     {
         using (var scope = host.Services.CreateScope())
         {
-            using (var appContext = scope.ServiceProvider.GetRequiredService<RepositoryContext>())
+            using var appContext = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
+            try
             {
-                try
-                {
-                    appContext.Database.Migrate();
-                }
-                catch (Exception ex)
-                {
-                    //Log errors or do anything you think it's needed
-                    throw;
-                }
+                appContext.Database.Migrate();
+            }
+            catch (Exception)
+            {
+                //Log errors or do anything you think it's needed
+                throw;
             }
         }
 

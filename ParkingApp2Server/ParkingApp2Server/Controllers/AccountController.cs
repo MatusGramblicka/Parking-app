@@ -32,7 +32,9 @@ public class AccountController : Controller
     public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistrationDto)
     {
         if (userForRegistrationDto == null || !ModelState.IsValid)
+        {
             return BadRequest();
+        }
 
         var user = new User
         {

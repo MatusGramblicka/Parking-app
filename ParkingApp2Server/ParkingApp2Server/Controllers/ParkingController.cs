@@ -79,7 +79,7 @@ public class ParkingController : ControllerBase
     [HttpGet("/daysWithTenants")]
     public IActionResult GetDaysWithTheirTenants()
     {
-        var context = _context.Days.Include(a => a.Tenants);
+        var context = _context.Days.Include(a => a.Tenants).AsNoTracking();
 
         var daysWithTenants = context.Select(x => new TenantsForDay
         {
@@ -93,7 +93,7 @@ public class ParkingController : ControllerBase
     [HttpGet("/tenantsWithDays")]
     public ActionResult<List<TenantWithDay>> GetTenantsWithTheirDays()
     {
-        var context = _context.Tenants.Include(a => a.Days);
+        var context = _context.Tenants.Include(a => a.Days).AsNoTracking();
 
         var tenantWithDays = context.Select(x => new TenantWithDay
         {
@@ -114,11 +114,12 @@ public class ParkingController : ControllerBase
             return NotFound();
         }
 
-        var context = _context.Tenants
+        var tenantWithDays = _context.Tenants
             .Where(w => w.TenantId == tenantId)
-            .Include(a => a.Days);
+            .Include(a => a.Days)
+            .AsNoTracking();
 
-        var days = context.SelectMany(s => s.Days.Select(t => t.DayId)).ToList();
+        var days = tenantWithDays.SelectMany(s => s.Days.Select(t => t.DayId)).ToList();
 
         return Ok(days);
     }
@@ -135,7 +136,8 @@ public class ParkingController : ControllerBase
 
         var context = _context.Days
             .Where(w => w.DayId == dayId)
-            .Include(a => a.Tenants);
+            .Include(a => a.Tenants)
+            .AsNoTracking();
 
         var tenants = context.SelectMany(s => s.Tenants.Select(t => t.TenantId)).ToList();
 
@@ -147,7 +149,8 @@ public class ParkingController : ControllerBase
     {
         var context = _context.Days
             .Where(x => days.Contains(x.DayId))
-            .Include(a => a.Tenants);
+            .Include(a => a.Tenants)
+            .AsNoTracking();
 
         var daysWithTenants = context.Select(x => new TenantsForDay
         {
@@ -193,19 +196,26 @@ public class ParkingController : ControllerBase
         var contextTenants = _context.Days
             .Where(z => z.DayId == tenantDay.DayId)
             .Include(a => a.Tenants)
+            .AsNoTracking()
             .SelectMany(s => s.Tenants.Select(t => t.TenantId))
             .ToList();
 
         if (contextTenants.Count >= _priviledgedUsersSettings.MaxCount)
+        {
             return BadRequest();
+        }
 
         var contextDays = _context.Tenants
             .Where(z => z.TenantId == tenantDay.TenantId)
             .Include(a => a.Days)
-            .SelectMany(s => s.Days.Select(d => d.DayId)).ToList();
+            .AsNoTracking()
+            .SelectMany(s => s.Days.Select(d => d.DayId))
+            .ToList();
 
         if (contextDays.Contains(tenantDay.DayId))
+        {
             return BadRequest();
+        }
 
         day.Tenants.Add(tenant);
         await _repository.SaveAsync();
@@ -238,10 +248,13 @@ public class ParkingController : ControllerBase
     [HttpPut("tenant/book/all")]
     public async Task<IActionResult> AddTenantToAllDays([FromBody] TenantSingle tenantSingle)
     {
-        var allUsers = _userManager.Users.ToList();
+        var allUsers = _userManager.Users.AsNoTracking();
         var priviledgeUsersCount = allUsers.Count(c => c.Priviledged);
+
         if (priviledgeUsersCount >= _priviledgedUsersSettings.MaxCount)
+        {
             return BadRequest("New privileged user cannot be created, no more free space");
+        }
 
         var tenant = await _repository.Tenant.GetTenantAsync(tenantSingle.TenantId, trackChanges: true);
 
@@ -260,7 +273,9 @@ public class ParkingController : ControllerBase
 
             if (tenantsColl.Contains(tenantSingle.TenantId) ||
                 tenantsColl.Count >= _priviledgedUsersSettings.MaxCount)
+            {
                 continue;
+            }
 
             day.Tenants.Add(tenant);
         }
