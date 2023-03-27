@@ -1,6 +1,7 @@
 ﻿using Entities.DTO;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -23,26 +24,26 @@ public class TenantDayRepo : ITenantDayRepo
     //    return tenant;
     //}
 
-    public async Task<List<string>> GetTenantDays(string tenantId)
+    public async Task<IQueryable<string>> GetTenantDays(string tenantId)
     {
-        var tenantDays = await _client.GetFromJsonAsync<List<string>>($"parking/tenant/{tenantId}/days");
+        var tenantDays = await _client.GetFromJsonAsync<IQueryable<string>>($"parking/tenant/{tenantId}/days");
 
         return tenantDays;
     }
 
-    public async Task<List<string>> GetDaysForTenant(string dayId)
+    public async Task<IQueryable<string>> GetDaysForTenant(string dayId)
     {
-        var tenantsForDay = await _client.GetFromJsonAsync<List<string>>($"parking/day/{dayId}/tenants");
+        var tenantsForDay = await _client.GetFromJsonAsync<IQueryable<string>>($"parking/day/{dayId}/tenants");
 
         return tenantsForDay;
     }
 
-    public async Task<List<TenantsForDay>> GetMultipleDaysForTenant(List<string> days)
+    public async Task<IQueryable<TenantsForDay>> GetMultipleDaysForTenant(List<string> days)
     {
         var result = await _client.PostAsJsonAsync($"parking/tenants/multipledays", days);
         var content = await result.Content.ReadAsStringAsync();
 
-        var tenantsForDays = JsonConvert.DeserializeObject<List<TenantsForDay>>(content);
+        var tenantsForDays = JsonConvert.DeserializeObject<IQueryable<TenantsForDay>>(content);
 
         return tenantsForDays;
     }
