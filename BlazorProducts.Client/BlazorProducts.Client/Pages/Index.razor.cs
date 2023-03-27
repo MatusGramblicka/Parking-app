@@ -34,7 +34,7 @@ public partial class Index
     public IQueryable<string> TenantsDaysForUi { get; set; }/* = new();*/
     public List<string> TenantsInDay { get; set; } = new();
     public/* List<List<TenantsForDay>>*/IQueryable<TenantsForDay> TenantsForDay { get; set; } /*= new();*/
-    public IEnumerable<string> TenantsDayActualSelection { get; set; } = new List<string>();
+    public IEnumerable<string> TenantsDayActualSelection { get; set; } /*= new List<string>();*/
     public WebSocketConfiguration WebSocketConfiguration { get; set; }
 
     private const int NumberOfDaysToShow = 31;

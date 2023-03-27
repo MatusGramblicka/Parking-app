@@ -145,7 +145,7 @@ public class ParkingController : ControllerBase
     }
 
     [HttpPost("tenants/multipledays")]
-    public ActionResult<List<TenantsForDay>> GetTenantsForMultipleDays([FromBody] List<string> days)
+    public ActionResult<IQueryable<TenantsForDay>> GetTenantsForMultipleDays([FromBody] List<string> days)
     {
         var context = _context.Days
             .Where(x => days.Contains(x.DayId))
