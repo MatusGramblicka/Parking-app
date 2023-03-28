@@ -5,6 +5,7 @@ using BlazorProducts.Client.HttpRepository;
 using Entities.Configuration;
 using Entities.DTO;
 using Entities.Enums;
+using Entities.Models;
 using Entities.WebSocket;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
@@ -32,7 +33,7 @@ public partial class Index
     public DateTime Today { get; set; }
     public List<string> TenantsDaysForUi { get; set; } = new();
     public List<string> TenantsInDay { get; set; } = new();
-    public List<List<TenantsForDay>> tenantsForDay { get; set; } = new();
+    public List<TenantsForDay> tenantsForDay { get; set; } = new();
     public IEnumerable<string> TenantsDayActualSelection { get; set; } = new List<string>();
     public WebSocketConfiguration WebSocketConfiguration { get; set; }
 
@@ -67,7 +68,7 @@ public partial class Index
 
         tenantsForDay = await GetCalendarMap();
 
-        TenantsDayActualSelection = tenantsForDay.SelectMany(s => s).Where(w => w.TenantIds.Contains(LoggedUserName))
+        TenantsDayActualSelection = tenantsForDay.Where(w => w.TenantIds.Contains(LoggedUserName))
             .Select(d => d.DayId);
     }
 
@@ -78,7 +79,7 @@ public partial class Index
         if (tenantsDays.Contains(day))
         {
             await TenantDayRepository.FreeDay(new TenantDay {DayId = day, TenantId = LoggedUserName});
-            tenantsForDay.SelectMany(s => s).Single(w => w.DayId == day).TenantIds.Remove(LoggedUserName);
+            tenantsForDay.Single(w => w.DayId == day).TenantIds.Remove(LoggedUserName);
         }
         else
         {
@@ -86,7 +87,7 @@ public partial class Index
             if (tenantsForConcreteDay.Count < 2)
             {
                 await TenantDayRepository.BookDay(new TenantDay {DayId = day, TenantId = LoggedUserName});
-                tenantsForDay.SelectMany(s => s).Single(w => w.DayId == day).TenantIds.Add(LoggedUserName);
+                tenantsForDay.Single(w => w.DayId == day).TenantIds.Add(LoggedUserName);
             }
             else
                 tenantsForDay =
@@ -94,10 +95,7 @@ public partial class Index
         }
 
         TenantsDaysForUi = await TenantDayRepository.GetTenantDays(LoggedUserName);
-        TenantsDayActualSelection = tenantsForDay
-            .SelectMany(s => s)
-            .Where(w => w.TenantIds.Contains(LoggedUserName))
-            .Select(d => d.DayId);
+        TenantsDayActualSelection = tenantsForDay.Where(w => w.TenantIds.Contains(LoggedUserName)).Select(d => d.DayId);
 
         StateHasChanged();
     }
@@ -140,10 +138,10 @@ public partial class Index
         return calendarButtontype;
     }
 
-    private async Task<List<List<TenantsForDay>>> GetCalendarMap()
+    private async Task<List<TenantsForDay>> GetCalendarMap()
     {
         var completeTenantsForDay = new List<List<TenantsForDay>>();
-        var days1 = new List<string>();
+        var days = new List<string>();
 
         for (var i = 0; i < 7; i++)
         {
@@ -152,12 +150,9 @@ public partial class Index
                 Today = DateTime.Today;
                 Today = Today.AddDays(i - DayOfWeekLocalNumber);
                 var nextDayStringReprCs = Today.ToString("ddMM");
-                days1.Add(nextDayStringReprCs);
+                days.Add(nextDayStringReprCs);
             }
-        }
-
-        var multipleDaysForTenant1 = await TenantDayRepository.GetMultipleDaysForTenant(days1);
-        completeTenantsForDay.Add(multipleDaysForTenant1);
+        }       
 
         var days2 = new List<string>();
         for (var i = 7; i < 14; i++)
@@ -165,11 +160,9 @@ public partial class Index
             Today = DateTime.Today;
             Today = Today.AddDays(i - DayOfWeekLocalNumber);
             var nextDayStringReprCs = Today.ToString("ddMM");
-            days2.Add(nextDayStringReprCs);
+            days.Add(nextDayStringReprCs);
         }
-
-        var multipleDaysForTenant2 = await TenantDayRepository.GetMultipleDaysForTenant(days2);
-        completeTenantsForDay.Add(multipleDaysForTenant2);
+        
 
         var days3 = new List<string>();
         for (var i = 14; i < 21; i++)
@@ -177,11 +170,8 @@ public partial class Index
             Today = DateTime.Today;
             Today = Today.AddDays(i - DayOfWeekLocalNumber);
             var nextDayStringReprCs = Today.ToString("ddMM");
-            days3.Add(nextDayStringReprCs);
-        }
-
-        var multipleDaysForTenant3 = await TenantDayRepository.GetMultipleDaysForTenant(days3);
-        completeTenantsForDay.Add(multipleDaysForTenant3);
+            days.Add(nextDayStringReprCs);
+        }       
 
         var days4 = new List<string>();
         for (var i = 21; i < 28; i++)
@@ -191,12 +181,9 @@ public partial class Index
                 Today = DateTime.Today;
                 Today = Today.AddDays(i - DayOfWeekLocalNumber);
                 var nextDayStringReprCs = Today.ToString("ddMM");
-                days4.Add(nextDayStringReprCs);
+                days.Add(nextDayStringReprCs);
             }
-        }
-
-        var multipleDaysForTenant4 = await TenantDayRepository.GetMultipleDaysForTenant(days4);
-        completeTenantsForDay.Add(multipleDaysForTenant4);
+        }        
 
         var days5 = new List<string>();
         for (var i = 28; i < 35; i++)
@@ -206,12 +193,9 @@ public partial class Index
                 Today = DateTime.Today;
                 Today = Today.AddDays(i - DayOfWeekLocalNumber);
                 var nextDayStringReprCs = Today.ToString("ddMM");
-                days5.Add(nextDayStringReprCs);
+                days.Add(nextDayStringReprCs);
             }
-        }
-
-        var multipleDaysForTenant5 = await TenantDayRepository.GetMultipleDaysForTenant(days5);
-        completeTenantsForDay.Add(multipleDaysForTenant5);
+        }        
 
         var days6 = new List<string>();
         for (var i = 35; i < 42; i++)
@@ -221,14 +205,27 @@ public partial class Index
                 Today = DateTime.Today;
                 Today = Today.AddDays(i - DayOfWeekLocalNumber);
                 var nextDayStringReprCs = Today.ToString("ddMM");
-                days6.Add(nextDayStringReprCs);
+                days.Add(nextDayStringReprCs);
             }
         }
 
-        var multipleDaysForTenant6 = await TenantDayRepository.GetMultipleDaysForTenant(days6);
-        completeTenantsForDay.Add(multipleDaysForTenant6);
 
-        return completeTenantsForDay;
+        //var multipleDaysForTenant1 = await TenantDayRepository.GetMultipleDaysForTenant(days1);
+        //completeTenantsForDay.Add(multipleDaysForTenant1);
+        //var multipleDaysForTenant2 = await TenantDayRepository.GetMultipleDaysForTenant(days2);
+        //completeTenantsForDay.Add(multipleDaysForTenant2);
+        //var multipleDaysForTenant3 = await TenantDayRepository.GetMultipleDaysForTenant(days3);
+        //completeTenantsForDay.Add(multipleDaysForTenant3);
+        //var multipleDaysForTenant4 = await TenantDayRepository.GetMultipleDaysForTenant(days4);
+        //completeTenantsForDay.Add(multipleDaysForTenant4);
+        //var multipleDaysForTenant5 = await TenantDayRepository.GetMultipleDaysForTenant(days5);
+        //completeTenantsForDay.Add(multipleDaysForTenant5);
+        //var multipleDaysForTenant6 = await TenantDayRepository.GetMultipleDaysForTenant(days6);
+        //completeTenantsForDay.Add(multipleDaysForTenant6);
+
+        var multipleDaysForTenant = await TenantDayRepository.GetMultipleDaysForTenant(days);
+
+        return multipleDaysForTenant;
     }
 
     async Task ReceiveLoop()
@@ -256,8 +253,7 @@ public partial class Index
             {
                 TenantsDaysForUi = await TenantDayRepository.GetTenantDays(LoggedUserName);
                 tenantsForDay = await GetCalendarMap();
-                TenantsDayActualSelection = tenantsForDay.SelectMany(s => s)
-                    .Where(w => w.TenantIds.Contains(LoggedUserName)).Select(d => d.DayId);
+                TenantsDayActualSelection = tenantsForDay.Where(w => w.TenantIds.Contains(LoggedUserName)).Select(d => d.DayId);
 
                 StateHasChanged();
             }

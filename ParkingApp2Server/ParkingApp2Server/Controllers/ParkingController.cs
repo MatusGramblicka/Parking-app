@@ -156,7 +156,7 @@ public class ParkingController : ControllerBase
         {
             DayId = x.DayId,
             TenantIds = x.Tenants.Select(t => t.TenantId).ToList()
-        }).ToList();
+        }).OrderBy(o=>o.DayId.Substring(2,2)).ToList();
 
         return Ok(daysWithTenants);
     }
