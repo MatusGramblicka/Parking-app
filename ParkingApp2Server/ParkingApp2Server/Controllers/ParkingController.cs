@@ -156,7 +156,7 @@ public class ParkingController : ControllerBase
         {
             DayId = x.DayId,
             TenantIds = x.Tenants.Select(t => t.TenantId).ToList()
-        }).OrderBy(o=>o.DayId.Substring(2,2)).ToList();
+        }).OrderBy(o => o.DayId.Substring(2, 2)).ToList(); // Extracting last 2 character of 4 digits date representation, e.g. 0104 gets 04
 
         return Ok(daysWithTenants);
     }
