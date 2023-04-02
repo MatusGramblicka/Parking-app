@@ -37,108 +37,22 @@
     </div>
     <table class="box">
         <thead>
-        <tr>
-            <th class="align-middle" scope="col" style="width: 10px">Mon</th>
-            <th class="align-middle" scope="col" style="width: 10px">Tue</th>
-            <th class="align-middle" scope="col" style="width: 10px">Wed</th>
-            <th class="align-middle" scope="col" style="width: 10px">Thu</th>
-            <th class="align-middle" scope="col" style="width: 10px">Fri</th>
-            <th class="align-middle" scope="col" style="width: 10px">Sat</th>
-            <th class="align-middle" scope="col" style="width: 10px">Sun</th>
-        </tr>
+            <tr>
+                <th class="align-middle" scope="col" style="width: 10px">Mon</th>
+                <th class="align-middle" scope="col" style="width: 10px">Tue</th>
+                <th class="align-middle" scope="col" style="width: 10px">Wed</th>
+                <th class="align-middle" scope="col" style="width: 10px">Thu</th>
+                <th class="align-middle" scope="col" style="width: 10px">Fri</th>
+                <th class="align-middle" scope="col" style="width: 10px">Sat</th>
+                <th class="align-middle" scope="col" style="width: 10px">Sun</th>
+            </tr>
         </thead>
         <tbody>
-        <tr>
-            @for (var i = 0; i < 7; i++)
-            {
-                <td class="align-middle" style="width: 10px">
-                    @if (i >= DayOfWeekLocalNumber)
-                    {
-                        var tenantForDay = TenantsForDay[i - DayOfWeekLocalNumber];
-                        var nextDayStringRepr = tenantForDay.DayId;
-                        var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
-
-                        var calendarButtontype = GetTypeOfCalendarDay(tenantForDay.TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
-
-                        @if (calendarButtontype == "btn-danger")
-                        {
-                            <button type="button" class="btn @calendarButtontype">
-                                @nextDayStringReprToShowOnUi
-                            </button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
-                                @nextDayStringReprToShowOnUi
-                            </button>
-                        }
-                    }
-                </td>
-            }
-        </tr>
-        <tr>
-            @for (var i = 7; i < 14; i++)
-            {
-                <td class="align-middle" style="width: 10px">
-                    @if (i >= 7)
-                    {
-                        var tenantForDay = TenantsForDay[i - DayOfWeekLocalNumber];
-                        var nextDayStringRepr = tenantForDay.DayId;
-                        var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
-
-                        var calendarButtontype = GetTypeOfCalendarDay(tenantForDay.TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
-
-                        @if (calendarButtontype == "btn-danger")
-                        {
-                            <button type="button" class="btn @calendarButtontype">
-                                @nextDayStringReprToShowOnUi
-                            </button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
-                                @nextDayStringReprToShowOnUi
-                            </button>
-                        }
-                    }
-                </td>
-            }
-        </tr>
-        <tr>
-            @for (var i = 14; i < 21; i++)
-            {
-                <td class="align-middle" style="width: 10px">
-                    @if (i >= 14)
-                    {
-                        var tenantForDay = TenantsForDay[i - DayOfWeekLocalNumber];
-                        var nextDayStringRepr = tenantForDay.DayId;
-                        var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
-
-                        var calendarButtontype = GetTypeOfCalendarDay(tenantForDay.TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
-
-                        @if (calendarButtontype == "btn-danger")
-                        {
-                            <button type="button" class="btn @calendarButtontype">
-                                @nextDayStringReprToShowOnUi
-                            </button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
-                                @nextDayStringReprToShowOnUi
-                            </button>
-                        }
-                    }
-                </td>
-            }
-        </tr>
-        <tr>
-            @for (var i = 21; i < 28; i++)
-            {
-                <td class="align-middle" style="width: 10px">
-                    @if (i >= 21)
-                    {
-                        if (i + DayOfWeekLocalNumber < NumberOfDaysToShow)
+            <tr>
+                @for (var i = 0; i < 7; i++)
+                {
+                    <td class="align-middle" style="width: 10px">
+                        @if (i >= DayOfWeekLocalNumber)
                         {
                             var tenantForDay = TenantsForDay[i - DayOfWeekLocalNumber];
                             var nextDayStringRepr = tenantForDay.DayId;
@@ -159,17 +73,14 @@
                                 </button>
                             }
                         }
-                    }
-                </td>
-            }
-        </tr>
-        <tr>
-            @for (var i = 28; i < 35; i++)
-            {
-                <td class="align-middle" style="width: 10px">
-                    @if (i >= 28)
-                    {
-                        if (i + DayOfWeekLocalNumber < NumberOfDaysToShow)
+                    </td>
+                }
+            </tr>
+            <tr>
+                @for (var i = 7; i < 14; i++)
+                {
+                    <td class="align-middle" style="width: 10px">
+                        @if (true)
                         {
                             var tenantForDay = TenantsForDay[i - DayOfWeekLocalNumber];
                             var nextDayStringRepr = tenantForDay.DayId;
@@ -190,17 +101,14 @@
                                 </button>
                             }
                         }
-                    }
-                </td>
-            }
-        </tr>
-        <tr>
-            @for (var i = 35; i < 42 - DayOfWeekLocalNumber + 1; i++)
-            {
-                <td class="align-middle" style="width: 10px">
-                    @if (i >= 35)
-                    {
-                        if (i + DayOfWeekLocalNumber < NumberOfDaysToShow)
+                    </td>
+                }
+            </tr>
+            <tr>
+                @for (var i = 14; i < 21; i++)
+                {
+                    <td class="align-middle" style="width: 10px">
+                        @if (true)
                         {
                             var tenantForDay = TenantsForDay[i - DayOfWeekLocalNumber];
                             var nextDayStringRepr = tenantForDay.DayId;
@@ -221,10 +129,95 @@
                                 </button>
                             }
                         }
-                    }
-                </td>
-            }
-        </tr>
+                    </td>
+                }
+            </tr>
+            <tr>
+                @for (var i = 21; i < 28; i++)
+                {
+                    <td class="align-middle" style="width: 10px">
+                        @if (i - DayOfWeekLocalNumber < NumberOfDaysToShow)
+                        {
+                            var tenantForDay = TenantsForDay[i - DayOfWeekLocalNumber];
+                            var nextDayStringRepr = tenantForDay.DayId;
+                            var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
+
+                            var calendarButtontype = GetTypeOfCalendarDay(tenantForDay.TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
+
+                            @if (calendarButtontype == "btn-danger")
+                            {
+                                <button type="button" class="btn @calendarButtontype">
+                                    @nextDayStringReprToShowOnUi
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
+                                    @nextDayStringReprToShowOnUi
+                                </button>
+                            }
+                        }
+
+                    </td>
+                }
+            </tr>
+            <tr>
+                @for (var i = 28; i < 35; i++)
+                {
+                    <td class="align-middle" style="width: 10px">
+
+                        @if (i - DayOfWeekLocalNumber < NumberOfDaysToShow)
+                        {
+                            var tenantForDay = TenantsForDay[i - DayOfWeekLocalNumber];
+                            var nextDayStringRepr = tenantForDay.DayId;
+                            var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
+
+                            var calendarButtontype = GetTypeOfCalendarDay(tenantForDay.TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
+
+                            @if (calendarButtontype == "btn-danger")
+                            {
+                                <button type="button" class="btn @calendarButtontype">
+                                    @nextDayStringReprToShowOnUi
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
+                                    @nextDayStringReprToShowOnUi
+                                </button>
+                            }
+                        }                    
+                    </td>
+                }
+            </tr>
+            <tr>
+                @for (var i = 35; i < 42 - DayOfWeekLocalNumber + 1; i++)
+                {
+                    <td class="align-middle" style="width: 10px">                    
+                        @if (i - DayOfWeekLocalNumber < NumberOfDaysToShow)
+                        {
+                            var tenantForDay = TenantsForDay[i - DayOfWeekLocalNumber];
+                            var nextDayStringRepr = tenantForDay.DayId;
+                            var nextDayStringReprToShowOnUi = AddDotsAndRemoveZeros(nextDayStringRepr);
+
+                            var calendarButtontype = GetTypeOfCalendarDay(tenantForDay.TenantIds.Count, TenantsDaysForUi, nextDayStringRepr);
+
+                            @if (calendarButtontype == "btn-danger")
+                            {
+                                <button type="button" class="btn @calendarButtontype">
+                                    @nextDayStringReprToShowOnUi
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn @calendarButtontype" @onclick="() => BookOrFreeDay(nextDayStringRepr)">
+                                    @nextDayStringReprToShowOnUi
+                                </button>
+                            }
+                        }
+                    </td>
+                }
+            </tr>
         </tbody>
     </table>
 }
@@ -232,15 +225,15 @@ else
 {
     <table class="box">
         <thead>
-        <tr>
-            <th class="align-middle" scope="col" style="width: 10px">Mon</th>
-            <th class="align-middle" scope="col" style="width: 10px">Tue</th>
-            <th class="align-middle" scope="col" style="width: 10px">Wed</th>
-            <th class="align-middle" scope="col" style="width: 10px">Thu</th>
-            <th class="align-middle" scope="col" style="width: 10px">Fri</th>
-            <th class="align-middle" scope="col" style="width: 10px">Sat</th>
-            <th class="align-middle" scope="col" style="width: 10px">Sun</th>
-        </tr>
+            <tr>
+                <th class="align-middle" scope="col" style="width: 10px">Mon</th>
+                <th class="align-middle" scope="col" style="width: 10px">Tue</th>
+                <th class="align-middle" scope="col" style="width: 10px">Wed</th>
+                <th class="align-middle" scope="col" style="width: 10px">Thu</th>
+                <th class="align-middle" scope="col" style="width: 10px">Fri</th>
+                <th class="align-middle" scope="col" style="width: 10px">Sat</th>
+                <th class="align-middle" scope="col" style="width: 10px">Sun</th>
+            </tr>
         </thead>
     </table>
     <span>
