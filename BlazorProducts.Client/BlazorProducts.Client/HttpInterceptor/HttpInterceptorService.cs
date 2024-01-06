@@ -1,6 +1,8 @@
 ﻿using Blazored.Toast.Services;
 using BlazorProducts.Client.HttpRepository;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -14,15 +16,21 @@ public class HttpInterceptorService
     private readonly NavigationManager _navManager;
     private readonly IToastService _toastService;
     private readonly RefreshTokenService _refreshTokenService;
+    private readonly IAuthenticationService _authenticationService;
+    private readonly NavigationManager _navigationManager;
+    private readonly ILogger<HttpInterceptorService> _logger;
 
     public HttpInterceptorService(HttpClientInterceptor interceptor,
-        NavigationManager navManager, IToastService toastService,
-        RefreshTokenService refreshTokenService)
+        NavigationManager navManager, IToastService toastService, IAuthenticationService authenticationService,
+        RefreshTokenService refreshTokenService, NavigationManager navigationManager, ILogger<HttpInterceptorService> logger)
     {
         _interceptor = interceptor;
         _navManager = navManager;
         _toastService = toastService;
         _refreshTokenService = refreshTokenService;
+        _authenticationService = authenticationService;
+        _navigationManager = navigationManager;
+        _logger = logger;
     }
 
     public void RegisterEvent() => _interceptor.AfterSend += HandleResponse;
@@ -44,9 +52,25 @@ public class HttpInterceptorService
     {
         var absolutePath = e.Request.RequestUri.AbsolutePath;
 
-        if (!absolutePath.Contains("token") && !absolutePath.Contains("account" /*"accounts"*/))
+        if (!absolutePath.Contains("token") && !absolutePath.Contains("account"))
         {
-            var token = await _refreshTokenService.TryRefreshToken();
+            var authToken = await _refreshTokenService.TryRefreshToken();
+
+            if (authToken.IsAuthSuccessful.HasValue && authToken.IsAuthSuccessful == false)
+            {
+                _logger.LogInformation("Auth token auth is not successful");
+                await _authenticationService.Logout();
+                _logger.LogInformation("LogOut performed");
+                _navigationManager.NavigateTo("/login");
+                _logger.LogInformation("Navigate to login");
+                // or _navigationManager.NavigateTo("/logout");
+
+                return;
+            }
+            _logger.LogInformation("Auth token auth is successful");
+
+            var token = authToken.Token;
+
             if (!string.IsNullOrEmpty(token))
             {
                 e.Request.Headers.Authorization =

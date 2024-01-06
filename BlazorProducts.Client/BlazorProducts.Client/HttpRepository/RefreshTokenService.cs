@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿using Entities.DTO;
+using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ public class RefreshTokenService
         _authService = authService;
     }
 
-    public async Task<string> TryRefreshToken()
+    public async Task<AuthTokenDto> TryRefreshToken()
     {
         var authState = await _authStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -28,6 +29,11 @@ public class RefreshTokenService
         if (diff.TotalMinutes <= 2)
             return await _authService.RefreshToken();
 
-        return string.Empty;
+        //return string.Empty;
+        return new AuthTokenDto
+        {
+            IsAuthSuccessful = null,
+            Token = string.Empty
+        };
     }
 }
