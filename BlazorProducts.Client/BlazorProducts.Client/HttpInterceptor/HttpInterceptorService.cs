@@ -16,21 +16,14 @@ public class HttpInterceptorService
     private readonly NavigationManager _navManager;
     private readonly IToastService _toastService;
     private readonly RefreshTokenService _refreshTokenService;
-    private readonly IAuthenticationService _authenticationService;
-    private readonly NavigationManager _navigationManager;
-    private readonly ILogger<HttpInterceptorService> _logger;
 
     public HttpInterceptorService(HttpClientInterceptor interceptor,
-        NavigationManager navManager, IToastService toastService, IAuthenticationService authenticationService,
-        RefreshTokenService refreshTokenService, NavigationManager navigationManager, ILogger<HttpInterceptorService> logger)
+        NavigationManager navManager, IToastService toastService, RefreshTokenService refreshTokenService)
     {
         _interceptor = interceptor;
         _navManager = navManager;
         _toastService = toastService;
-        _refreshTokenService = refreshTokenService;
-        _authenticationService = authenticationService;
-        _navigationManager = navigationManager;
-        _logger = logger;
+        _refreshTokenService = refreshTokenService;      
     }
 
     public void RegisterEvent() => _interceptor.AfterSend += HandleResponse;
@@ -58,16 +51,9 @@ public class HttpInterceptorService
 
             if (authToken.IsAuthSuccessful.HasValue && authToken.IsAuthSuccessful == false)
             {
-                _logger.LogInformation("Auth token auth is not successful");
-                await _authenticationService.Logout();
-                _logger.LogInformation("LogOut performed");
-                _navigationManager.NavigateTo("/login");
-                _logger.LogInformation("Navigate to login");
-                // or _navigationManager.NavigateTo("/logout");
-
+                _navManager.NavigateTo("/logout");   
                 return;
             }
-            _logger.LogInformation("Auth token auth is successful");
 
             var token = authToken.Token;
 
