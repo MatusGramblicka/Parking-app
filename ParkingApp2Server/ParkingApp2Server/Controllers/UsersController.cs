@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ParkingApp2Server.Controllers;
 
-[Route("api/account")]
+[Route("api/users")]
 [ApiController]
 [Authorize(Roles = "Administrator")]
 public class UsersController : Controller

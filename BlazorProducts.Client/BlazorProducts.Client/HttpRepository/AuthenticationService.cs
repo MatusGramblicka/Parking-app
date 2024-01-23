@@ -1,7 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using BlazorProducts.Client.AuthProviders;
 using Entities.DTO;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -17,15 +16,13 @@ public class AuthenticationService : IAuthenticationService
     private readonly JsonSerializerOptions _options = new() {PropertyNameCaseInsensitive = true};
     private readonly AuthenticationStateProvider _authStateProvider;
     private readonly ILocalStorageService _localStorage;
-    private readonly NavigationManager _navManager;
 
     public AuthenticationService(HttpClient client, AuthenticationStateProvider authStateProvider,
-        ILocalStorageService localStorage, NavigationManager navManager)
+        ILocalStorageService localStorage)
     {
         _client = client;
         _authStateProvider = authStateProvider;
         _localStorage = localStorage;
-        _navManager = navManager;
     }
 
     public async Task<AuthResponseDto> Login(UserForAuthenticationDto userForAuthentication)
@@ -81,11 +78,6 @@ public class AuthenticationService : IAuthenticationService
 
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue
             ("bearer", result.Token);
-
-        if (result.IsAuthSuccessful == false)
-        {
-            _navManager.NavigateTo("/logout");
-        }
 
         return result.Token;
     }

@@ -15,6 +15,8 @@ public class HttpInterceptorService
     private readonly IToastService _toastService;
     private readonly RefreshTokenService _refreshTokenService;
 
+    private const string refreshTokenRoute = "token/refresh";
+
     public HttpInterceptorService(HttpClientInterceptor interceptor,
         NavigationManager navManager, IToastService toastService,
         RefreshTokenService refreshTokenService)
@@ -44,7 +46,7 @@ public class HttpInterceptorService
     {
         var absolutePath = e.Request.RequestUri.AbsolutePath;
 
-        if (!absolutePath.Contains("token") && !absolutePath.Contains("account" /*"accounts"*/))
+        if (!absolutePath.Contains("token") && !absolutePath.Contains("account"))
         {
             var token = await _refreshTokenService.TryRefreshToken();
             if (!string.IsNullOrEmpty(token))
@@ -57,7 +59,9 @@ public class HttpInterceptorService
 
     private void HandleResponse(object sender, HttpClientInterceptorEventArgs e)
     {
-        if (e.Response == null)
+        var requestUriAbsolutePath = e.Request.RequestUri.AbsolutePath;
+
+        if (e.Response == null && !requestUriAbsolutePath.Contains(refreshTokenRoute))
         {
             _navManager.NavigateTo("/error");
             throw new HttpResponseException("Server not available.");
@@ -66,7 +70,7 @@ public class HttpInterceptorService
         var message = "";
 
         if (!e.Response.IsSuccessStatusCode)
-        {
+        {            
             switch (e.Response.StatusCode)
             {
                 case HttpStatusCode.NotFound:
@@ -74,6 +78,13 @@ public class HttpInterceptorService
                     message = "Resource not found.";
                     break;
                 case HttpStatusCode.BadRequest:
+
+                    if (requestUriAbsolutePath.Contains(refreshTokenRoute))
+                    { 
+                        _navManager.NavigateTo("/logout");
+                        break; 
+                    }                        
+
                     message = "Invalid request. Please try again.";
                     _toastService.ShowError(message);
                     break;
