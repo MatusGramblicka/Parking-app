@@ -19,14 +19,14 @@ public class UsersHttpRepository : IUsersHttpRepository
 
     public async Task<List<UserLite>> GetUsers()
     {
-        var usersResult = await _client.GetFromJsonAsync<List<UserLite>>("account/users");
+        var usersResult = await _client.GetFromJsonAsync<List<UserLite>>("users/users");
 
         return usersResult;
     }
 
     public async Task<HttpStatusCode> DeleteUser(UserLite user)
     {
-        var result = await _client.PostAsJsonAsync("account/deleteuser",
+        var result = await _client.PostAsJsonAsync("users/deleteuser",
             user);
 
         return result.StatusCode;
@@ -34,7 +34,7 @@ public class UsersHttpRepository : IUsersHttpRepository
 
     public async Task<HttpStatusCode> UpdatePriviledgeOfUser(UserLite user)
     {
-        var result = await _client.PostAsJsonAsync("account/UpdatePriviledgeOfUser",
+        var result = await _client.PostAsJsonAsync("users/UpdatePriviledgeOfUser",
             user);
 
         return result.StatusCode;
