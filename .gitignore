@@ -34,6 +34,7 @@ bld/
 
 *appsettings*
 */ParkingApp2Server/wwwroot/*
+*ParkingApp2Server/ParkingApp2Server/Properties/ServiceDependencies/*
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
