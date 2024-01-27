@@ -15,7 +15,7 @@ using ParkingApp2Server.Middleware.WebSocket;
 using ParkingApp2Server.Services;
 using SlimBus.Client;
 using SlimMessageBus;
-using SlimMessageBus.Host.DependencyResolver;
+using SlimMessageBus.Host;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -107,7 +107,7 @@ public class Startup
     {
         var builder = MessageBusBuildExtensions
             .CreateMemoryMessageBus()
-            .WithDependencyResolver(new LookupDependencyResolver(serviceProvider.GetRequiredService))
+            .WithDependencyResolver(serviceProvider)
             .AddProducer<WebHookMessage>("webhook")
             .AddConsumer<WebHookMessage, WebHookMessageEventsBusAdapter>("webhook");
         return builder.Build();

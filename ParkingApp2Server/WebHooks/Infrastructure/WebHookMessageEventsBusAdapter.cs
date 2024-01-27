@@ -13,7 +13,7 @@ public class WebHookMessageEventsBusAdapter : IConsumer<WebHookMessage>
         _webHookPayloadProcessor = webHookPayloadProcessor;
     }
 
-    public Task OnHandle(WebHookMessage message, string path)
+    public Task OnHandle(WebHookMessage message)
     {
         return Task.Run(() =>
         {
