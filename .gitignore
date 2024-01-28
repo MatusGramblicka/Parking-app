@@ -353,6 +353,3 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-/ParkingApp2Server/ParkingApp2Server/appsettings.json
-/ParkingApp2Server/ParkingApp2Server/appsettings.json
-/ParkingApp2Server/ParkingApp2Server/appsettings.Production.json
