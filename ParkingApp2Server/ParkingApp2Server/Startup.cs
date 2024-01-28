@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -15,9 +16,11 @@ using ParkingApp2Server.Middleware.WebSocket;
 using ParkingApp2Server.Services;
 using SlimBus.Client;
 using SlimMessageBus;
-using SlimMessageBus.Host.DependencyResolver;
+using SlimMessageBus.Host;
+using SlimMessageBus.Host.Memory;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using WebHooks.Contracts;
 using WebHooks.Infrastructure;
@@ -99,15 +102,16 @@ public class Startup
 
     public void ConfigureMessageBus(IServiceCollection services)
     {
+        services.TryAddSingleton<IMessageTypeResolver, AssemblyQualifiedNameMessageTypeResolver>();
         services.AddSingleton<IMessagePublisher, MessageBusAdapter>();
         services.AddSingleton(BuildSlimMessageBus);
-    }
+    }   
 
     private IMessageBus BuildSlimMessageBus(IServiceProvider serviceProvider)
     {
         var builder = MessageBusBuildExtensions
             .CreateMemoryMessageBus()
-            .WithDependencyResolver(new LookupDependencyResolver(serviceProvider.GetRequiredService))
+            .WithDependencyResolver(serviceProvider)
             .AddProducer<WebHookMessage>("webhook")
             .AddConsumer<WebHookMessage, WebHookMessageEventsBusAdapter>("webhook");
         return builder.Build();
