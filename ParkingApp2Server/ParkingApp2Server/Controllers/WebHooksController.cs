@@ -37,11 +37,9 @@ public class WebHooksController : ControllerBase
     public async Task<ActionResult<WebHookSubscription>> GetSubscription([FromRoute] Guid id)
     {
         var webHookSubscriptionFromDb = await _repository.WebHook.GetWebHookSubscriptionAsync(id, trackChanges: false);
-        if (webHookSubscriptionFromDb == null)
-        {
+        if (webHookSubscriptionFromDb == null)        
             return NotFound();
-        }
-
+        
         var webHookSubscription = _mapper.Map<WebHookSubscriptionDto>(webHookSubscriptionFromDb);
 
         return Ok(webHookSubscription);
@@ -68,11 +66,9 @@ public class WebHooksController : ControllerBase
     {
         var webHookSubscriptionFromDb =
             await _repository.WebHook.GetWebHookSubscriptionAsync(webHookSubscriptionId, trackChanges: true);
-        if (webHookSubscriptionFromDb == null)
-        {
+        if (webHookSubscriptionFromDb == null)        
             return NotFound();
-        }
-
+        
         var webHookSubscription = _mapper.Map<WebHookSubscription>(webHookSubscriptionForUpdate);
 
         _repository.WebHook.CreateWebHookSubscription(webHookSubscription);
@@ -89,11 +85,9 @@ public class WebHooksController : ControllerBase
     {
         var webHookSubscriptionFromDb =
             await _repository.WebHook.GetWebHookSubscriptionAsync(webHookSubscriptionId, trackChanges: false);
-        if (webHookSubscriptionFromDb == null)
-        {
+        if (webHookSubscriptionFromDb == null)        
             return NotFound();
-        }
-
+        
         _repository.WebHook.DeleteWebHookSubscription(webHookSubscriptionFromDb);
         await _repository.SaveAsync();
 

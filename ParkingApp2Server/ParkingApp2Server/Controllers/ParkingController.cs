@@ -58,7 +58,7 @@ public class ParkingController : ControllerBase
     }      
 
     [HttpGet("tenant/{tenantId}/days")]
-    public async Task<ActionResult<List<string>>> GetDaysOfTenant([FromRoute] string tenantId)
+    public async Task<ActionResult<IEnumerable<string>>> GetDaysOfTenant([FromRoute] string tenantId)
     {
         var tenant = await _repository.Tenant.GetTenantAsync(tenantId, trackChanges: false);
 
@@ -70,13 +70,13 @@ public class ParkingController : ControllerBase
             .Include(a => a.Days)
             .AsNoTracking();
 
-        var days = tenantWithDays.SelectMany(s => s.Days.Select(t => t.DayId)).ToList();
+        var days = tenantWithDays.SelectMany(s => s.Days.Select(t => t.DayId));
 
         return Ok(days);
     }
 
     [HttpGet("day/{dayId}/tenants")]
-    public async Task<ActionResult<List<string>>> GetTenantsOfDay([FromRoute] string dayId)
+    public async Task<ActionResult<IEnumerable<string>>> GetTenantsOfDay([FromRoute] string dayId)
     {
         var day = await _repository.Day.GetDayAsync(dayId, trackChanges: false);
 
@@ -88,7 +88,7 @@ public class ParkingController : ControllerBase
             .Include(a => a.Tenants)
             .AsNoTracking();
 
-        var tenants = context.SelectMany(s => s.Tenants.Select(t => t.TenantId)).ToList();
+        var tenants = context.SelectMany(s => s.Tenants.Select(t => t.TenantId));
 
         return Ok(tenants);
     }
