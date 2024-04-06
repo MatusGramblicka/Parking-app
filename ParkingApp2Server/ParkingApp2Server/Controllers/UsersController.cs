@@ -81,20 +81,16 @@ public class UsersController : Controller
     {
         var user = await _userManager.FindByNameAsync(userLite.Email);
 
-        if (user == null)
-        {
+        if (user == null)        
             return BadRequest();
-        }
-
+        
         if (userLite.Priviledged)
         {
             // How many users are priviledged ones?
             var allUsers = _userManager.Users.AsNoTracking();
             var priviledgedUsersCount = allUsers.Where(w => w.Priviledged).ToList().Count;
-            if (priviledgedUsersCount >= _priviledgedUsersSettings.MaxCount)
-            {
-                return BadRequest();
-            }
+            if (priviledgedUsersCount >= _priviledgedUsersSettings.MaxCount)            
+                return BadRequest();            
         }
 
         user.Priviledged = userLite.Priviledged;
