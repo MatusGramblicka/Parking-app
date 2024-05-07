@@ -16,6 +16,8 @@ public partial class WebHooks : IDisposable
 
     [Inject] public HttpInterceptorService Interceptor { get; set; }
 
+    private bool _alreadyDisposed;
+
     protected override async Task OnInitializedAsync()
     {
         Interceptor.RegisterEvent();
@@ -34,6 +36,27 @@ public partial class WebHooks : IDisposable
 
         await GetWebhooks();
     }
+    
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 
-    public void Dispose() => Interceptor.DisposeEvent();
+    private void Dispose(bool disposing)
+    {
+        if (_alreadyDisposed)
+            return;
+
+        if (disposing)
+        {
+            Interceptor.DisposeEvent();
+            _alreadyDisposed = true;
+        }
+    }
+
+    ~WebHooks()
+    {
+        Dispose(disposing: false);
+    }
 }
