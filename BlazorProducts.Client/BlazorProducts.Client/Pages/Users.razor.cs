@@ -29,6 +29,8 @@ public partial class Users : IDisposable
     [Inject] public ITenantDayRepo TenantDayRepo { get; set; }
     [Inject] public IOptions<PriviledgedUsersConfiguration> PriviledgedUsersSettings { get; set; }
 
+    private bool _alreadyDisposed;
+
     protected override async Task OnInitializedAsync()
     {
         Interceptor.RegisterEvent();
@@ -94,6 +96,27 @@ public partial class Users : IDisposable
         await UsersHttpRepository.DeleteUser(user);
         await GetUsers();
     }
+    
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 
-    public void Dispose() => Interceptor.DisposeEvent();
+    private void Dispose(bool disposing)
+    {
+        if (_alreadyDisposed)
+            return;
+
+        if (disposing)
+        {
+            Interceptor.DisposeEvent();
+            _alreadyDisposed = true;
+        }
+    }
+
+    ~Users()
+    {
+        Dispose(disposing: false);
+    }
 }
